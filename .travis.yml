@@ -1,0 +1,15 @@
+sudo: false
+language: go
+go:
+  - 1.9
+  - master
+install:
+  - go get github.com/golang/lint/golint
+  - go get github.com/golang/dep
+  - dep ensure
+script:
+  - golint -set_exit_status $(go list ./...)
+  - go fmt ./...
+  - go build -v ./...
+  - go test -v ./...
+  - go vet -v ./...
