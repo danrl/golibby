@@ -40,14 +40,14 @@ func (n *Node) node(path []string, create bool) (*Node, error) {
 	return nd.node(path[1:], create)
 }
 
-// Set assigns arbitrary data to a node identified by a path of keys
-func (n *Node) Set(path []string, data interface{}) {
+// Upsert assigns arbitrary data to a node identified by a path of keys
+func (n *Node) Upsert(path []string, data interface{}) {
 	nd, _ := n.node(path, true)
 	nd.data = data
 	nd.set = true
 }
 
-// Data retrieves data  assigned to a node identified by a path of keys
+// Data retrieves data assigned to a node identified by a path of keys
 func (n *Node) Data(path []string) (interface{}, error) {
 	nd, err := n.node(path, false)
 	if err != nil {
@@ -59,7 +59,7 @@ func (n *Node) Data(path []string) (interface{}, error) {
 	return nd.data, nil
 }
 
-func (n *Node) remove(path []string) (int, error) {
+func (n *Node) delete(path []string) (int, error) {
 	// remove data and return if this node is the last node in the path
 	if len(path) == 0 {
 		n.data = nil
@@ -72,7 +72,7 @@ func (n *Node) remove(path []string) (int, error) {
 		return 0, ErrorNotFound
 	}
 	// recurse down
-	nk, err := nd.remove(path[1:])
+	nk, err := nd.delete(path[1:])
 	if err != nil {
 		return 0, err
 	}
@@ -83,8 +83,8 @@ func (n *Node) remove(path []string) (int, error) {
 	return len(n.keys), nil
 }
 
-// Remove deletes data from a node identified by a path of keys
-func (n *Node) Remove(path []string) error {
-	_, err := n.remove(path)
+// Delete deletes data from a node identified by a path of keys
+func (n *Node) Delete(path []string) error {
+	_, err := n.delete(path)
 	return err
 }

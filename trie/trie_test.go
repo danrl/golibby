@@ -19,7 +19,7 @@ func TestNew(t *testing.T) {
 
 func TestSetData(t *testing.T) {
 	tr := New()
-	tr.Set(path2, 2)
+	tr.Upsert(path2, 2)
 
 	// epecting data at path2
 	data, err := tr.Data(path2)
@@ -42,23 +42,23 @@ func TestData(t *testing.T) {
 func TestRemove(t *testing.T) {
 	{
 		tr := New()
-		err := tr.Remove(path3)
+		err := tr.Delete(path3)
 		assert.Equal(t, ErrorNotFound, err)
 	}
 	{
 		tr := New()
-		tr.Set(path1, 1)
-		_ = tr.Remove(path1)
+		tr.Upsert(path1, 1)
+		_ = tr.Delete(path1)
 		_, err := tr.Data(path1)
 		assert.Equal(t, ErrorNotFound, err)
 	}
 	{
 		tr := New()
-		tr.Set(path1, 1)
-		tr.Set(path3, 3)
+		tr.Upsert(path1, 1)
+		tr.Upsert(path3, 3)
 
 		// remove leaf node and its data
-		err := tr.Remove(path3)
+		err := tr.Delete(path3)
 		assert.Equal(t, nil, err)
 
 		// expecting path2 to not exist anymore after leaf node removal
@@ -67,8 +67,8 @@ func TestRemove(t *testing.T) {
 	}
 	{
 		tr := New()
-		tr.Set(path2, 2)
-		err := tr.Remove(path3)
+		tr.Upsert(path2, 2)
+		err := tr.Delete(path3)
 		assert.Equal(t, ErrorNotFound, err)
 	}
 }
