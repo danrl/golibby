@@ -3,7 +3,7 @@ package limitedqueue
 import (
 	"fmt"
 
-	"github.com/danrl/golib/queue"
+	"github.com/danrl/golibby/queue"
 )
 
 // LimitedQueue represents a limited queue
