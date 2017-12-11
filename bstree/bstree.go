@@ -3,7 +3,7 @@ package bstree
 import (
 	"fmt"
 
-	"github.com/danrl/golib/utils"
+	"github.com/danrl/golibby/utils"
 )
 
 type node struct {
@@ -151,4 +151,23 @@ func (n *node) height() int {
 // Height returns the height of a binary search tree
 func (b *BSTree) Height() int {
 	return b.root.height()
+}
+
+func (n *node) iter(ch chan<- interface{}) {
+	if n == nil {
+		return
+	}
+	n.left.iter(ch)
+	ch <- n.val
+	n.right.iter(ch)
+}
+
+// Iter provides an iterator to walk through the binary search tree
+func (b *BSTree) Iter() <-chan interface{} {
+	ch := make(chan interface{})
+	go func() {
+		b.root.iter(ch)
+		close(ch)
+	}()
+	return ch
 }

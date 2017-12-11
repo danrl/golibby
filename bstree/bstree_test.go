@@ -185,3 +185,17 @@ func TestHeight(t *testing.T) {
 	bst.Upsert("zzz", "bar-z")
 	assert.Equal(t, 2, bst.Height())
 }
+
+func TestIter(t *testing.T) {
+	bst := New()
+	bst.Upsert("foo", "")
+	bst.Upsert("aaa", "")
+	bst.Upsert("zzz", "")
+	bst.Upsert("bbb", "")
+	bst.Upsert("rrr", "")
+	var i int
+	for _ = range bst.Iter() {
+		i++
+	}
+	assert.Equal(t, 5, i)
+}
