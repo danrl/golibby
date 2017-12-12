@@ -6,6 +6,12 @@ import (
 	"github.com/danrl/golibby/utils"
 )
 
+// Item holds the key and value of a node to be returned by an iterator
+type Item struct {
+	Key string
+	Val interface{}
+}
+
 type node struct {
 	key   string
 	val   interface{}
@@ -21,6 +27,13 @@ type BSTree struct {
 // New returns an initialized binary search tree
 func New() *BSTree {
 	return &BSTree{}
+}
+
+func new(key string, val interface{}) *node {
+	return &node{
+		key: key,
+		val: val,
+	}
 }
 
 var (
@@ -48,20 +61,14 @@ func (b *BSTree) Value(key string) (interface{}, error) {
 func (n *node) upsert(key string, val interface{}) error {
 	if key < n.key {
 		if n.left == nil {
-			n.left = &node{
-				key: key,
-				val: val,
-			}
+			n.left = new(key, val)
 			return nil
 		}
 		return n.left.upsert(key, val)
 	}
 	if key > n.key {
 		if n.right == nil {
-			n.right = &node{
-				key: key,
-				val: val,
-			}
+			n.right = new(key, val)
 			return nil
 		}
 		return n.right.upsert(key, val)
@@ -74,10 +81,7 @@ func (n *node) upsert(key string, val interface{}) error {
 func (b *BSTree) Upsert(key string, val interface{}) error {
 	// if root node is empty, new node is root now
 	if b.root == nil {
-		b.root = &node{
-			key: key,
-			val: val,
-		}
+		b.root = new(key, val)
 		return nil
 	}
 	return b.root.upsert(key, val)
@@ -135,9 +139,9 @@ func (n *node) delete(key string) (*node, error) {
 }
 
 // Delete removes a key and associated data from a binsary search tree
-func (b *BSTree) Delete(key string) error {
+func (b *BSTree) Delete(k string) error {
 	var err error
-	b.root, err = b.root.delete(key)
+	b.root, err = b.root.delete(k)
 	return err
 }
 
@@ -153,18 +157,21 @@ func (b *BSTree) Height() int {
 	return b.root.height()
 }
 
-func (n *node) iter(ch chan<- interface{}) {
+func (n *node) iter(ch chan<- Item) {
 	if n == nil {
 		return
 	}
 	n.left.iter(ch)
-	ch <- n.val
+	ch <- Item{
+		Key: n.key,
+		Val: n.val,
+	}
 	n.right.iter(ch)
 }
 
 // Iter provides an iterator to walk through the binary search tree
-func (b *BSTree) Iter() <-chan interface{} {
-	ch := make(chan interface{})
+func (b *BSTree) Iter() <-chan Item {
+	ch := make(chan Item)
 	go func() {
 		b.root.iter(ch)
 		close(ch)

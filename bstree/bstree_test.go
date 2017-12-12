@@ -188,14 +188,31 @@ func TestHeight(t *testing.T) {
 
 func TestIter(t *testing.T) {
 	bst := New()
-	bst.Upsert("foo", "")
-	bst.Upsert("aaa", "")
-	bst.Upsert("zzz", "")
-	bst.Upsert("bbb", "")
-	bst.Upsert("rrr", "")
-	var i int
-	for _ = range bst.Iter() {
-		i++
+	bst.Upsert("foo", "bar")
+	bst.Upsert("aaa", "bar-a")
+	bst.Upsert("zzz", "bar-z")
+	bst.Upsert("bbb", "bar-b")
+	bst.Upsert("rrr", "bar-r")
+	var n int
+	for i := range bst.Iter() {
+		switch n {
+		case 0:
+			assert.Equal(t, "aaa", i.Key)
+			assert.Equal(t, "bar-a", i.Val)
+		case 1:
+			assert.Equal(t, "bbb", i.Key)
+			assert.Equal(t, "bar-b", i.Val)
+		case 2:
+			assert.Equal(t, "foo", i.Key)
+			assert.Equal(t, "bar", i.Val)
+		case 3:
+			assert.Equal(t, "rrr", i.Key)
+			assert.Equal(t, "bar-r", i.Val)
+		case 4:
+			assert.Equal(t, "zzz", i.Key)
+			assert.Equal(t, "bar-z", i.Val)
+		}
+		n++
 	}
-	assert.Equal(t, 5, i)
+	assert.Equal(t, 5, n)
 }
