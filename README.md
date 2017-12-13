@@ -1,6 +1,7 @@
 # golibby
 
 [![Build Status](https://travis-ci.org/danrl/golibby.svg?branch=master)](https://travis-ci.org/danrl/golibby)
+[![Coverage Status](https://coveralls.io/repos/github/danrl/golibby/badge.svg?branch=master)](https://coveralls.io/github/danrl/golibby?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/danrl/golib)](https://goreportcard.com/report/github.com/danrl/golib)
 [![GoDoc](https://godoc.org/github.com/danrl/golib?status.svg)](https://godoc.org/github.com/danrl/golib)
 
