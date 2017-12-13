@@ -1,20 +1,22 @@
 sudo: false
-env:
-  global:
-    secure: W/FErdRJ+JVi4nwQXY87EL3o9jUN/mmDs5DwXntZ1oD+aaDuSV1/uIKI4ZhQqcgAVTsfv0YpCXtbyQ6gUEaLmmDAlzIIHH4i1iwmbFxp7DZ3M30WBLvVnaQrng/FjSmXuQgjozpBy/DfCk2StypqZphg6ObrJEn2ch22VFp8nYYkOfRZtcy0FHCPZI8/h+R74yTkogodJJfS4stcRT1dck2x6hOGp/eg4ywCL60zpfkZOkHOM9YcUSd2/6girdAZ7yiwgRFe7ZLn6JJmQ9kwIwQF4vqma2kqRT3yPMrKK1qGCAw9d4sweFmFx3rG+1Ey0rq0ZiVEE2w4YF741l3H1soPs792shQHLkhw9rJwmTHe+fKThaOEOHKQEdzi0QdZQ3HHfMFK4h0Jn1cQJe3rhAq0BvQXauXWIP4yvAEW4k+BRxl3TCmYz+vxkTj9BlmGyHrB8WpvNLlT0RKNZd+0TiZ9nHvadmj3xeemNuaujgOkuogJEq9ed7z542t9dmyQ13zP/dFDcXBlepdVSykUJMFGuZeKx2uRRDtIadUvP3I0/uqNRRqbVS/aLhl0ltCpawpqVIVFVqsVsskH+bNrHwGu2tWWjHjX2yBI3edfB+Q/xJZrHte3keZ4HTOE4i1mCfQPCjWzFaNnPZTB6Pf/MzVRJPBdrwJr7g4iE/gud/0=
 language: go
 go:
-- 1.9
-- master
+  - 1.9
+  - master
 install:
-- go get github.com/golang/lint/golint
-- go get github.com/golang/dep/cmd/dep
-- go get golang.org/x/tools/cmd/cover
-- go get github.com/mattn/goveralls
+  - go get github.com/golang/lint/golint
+  - go get github.com/golang/dep/cmd/dep
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/mattn/goveralls
 script:
-- dep ensure
-- golint -set_exit_status $(go list ./...)
-- go vet -v ./...
-- go build -v ./...
-- go test -v -covermode=count -coverprofile=coverage.out ./...
-- goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
+  # dependencies
+  - dep ensure
+  # style
+  - golint -set_exit_status $(go list ./...)
+  - go vet -v ./...
+  # build
+  - go build -v ./...
+  # test
+  - go test -v ./...
+  # test coverage
+  - goveralls -service=travis-ci
