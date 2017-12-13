@@ -36,10 +36,8 @@ func new(key string, val interface{}) *node {
 	}
 }
 
-var (
-	// ErrorNotFound is returned when a key is not in the binary search tree
-	ErrorNotFound = fmt.Errorf("not found")
-)
+// ErrorNotFound is returned when a key is not in the binary search tree
+var ErrorNotFound = fmt.Errorf("not found")
 
 func (n *node) value(key string) (interface{}, error) {
 	if n == nil {
