@@ -28,3 +28,19 @@ func TestAVLTreeLookup(t *testing.T) {
 	assert.Equal(t, 1337, value)
 	assert.Equal(t, nil, err)
 }
+
+func TestAVLTreeDelete(t *testing.T) {
+	{
+		avl := New()
+
+		err := avl.Delete("foo")
+		assert.Equal(t, ErrorNotFound, err)
+	}
+	{
+		avl := New()
+		avl.Upsert("foo", 1337)
+
+		err := avl.Delete("foo")
+		assert.Equal(t, nil, err)
+	}
+}

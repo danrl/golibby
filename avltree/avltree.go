@@ -32,3 +32,13 @@ func (a *AVLTree) Lookup(key string) (interface{}, error) {
 
 	return a.root.lookup(key)
 }
+
+// Delete removes a key value pair from the AVL tree
+func (a *AVLTree) Delete(key string) error {
+	a.lock.Lock()
+	defer a.lock.Unlock()
+
+	var err error
+	a.root, err = a.root.delete(key)
+	return err
+}
