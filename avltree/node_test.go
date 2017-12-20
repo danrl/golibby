@@ -3,8 +3,23 @@ package avltree
 import (
 	"testing"
 
+	"github.com/danrl/golibby/utils"
 	"github.com/stretchr/testify/assert"
 )
+
+func testhelperRecursiveHeightsUpdate(nd *node) int {
+	if nd.left == nil {
+		nd.leftHeight = 0
+	} else {
+		nd.leftHeight = 1 + testhelperRecursiveHeightsUpdate(nd.left)
+	}
+	if nd.right == nil {
+		nd.rightHeight = 0
+	} else {
+		nd.rightHeight = 1 + testhelperRecursiveHeightsUpdate(nd.right)
+	}
+	return utils.Max(nd.leftHeight, nd.rightHeight)
+}
 
 func TestNewOrphanNode(t *testing.T) {
 	nd := newNode(nil, "foo", 1337)
@@ -41,6 +56,14 @@ func TestNodeNewRightNode(t *testing.T) {
 	assert.Equal(t, 0, nd.right.rightHeight)
 }
 
+func TestNodeHasParent(t *testing.T) {
+	nd := newNode(nil, "", nil)
+	assert.Equal(t, false, nd.hasParent())
+
+	nd.newLeftNode("", nil)
+	assert.Equal(t, true, nd.left.hasParent())
+}
+
 func TestNodeHasLeft(t *testing.T) {
 	nd := newNode(nil, "", nil)
 	assert.Equal(t, false, nd.hasLeft())
@@ -63,52 +86,42 @@ func TestNodeHeight(t *testing.T) {
 
 	nd.newLeftNode("", nil)
 	assert.Equal(t, 1, nd.height())
-
-	nd.newRightNode("", nil)
-	assert.Equal(t, 1, nd.height())
-
-	nd.right.newRightNode("", nil)
-	assert.Equal(t, 2, nd.height())
 }
 
-func TestNodeSetHeight(t *testing.T) {
+func TestUpdateHeights(t *testing.T) {
 	{
-		nd := newNode(nil, "", nil)
-		nd.setHeight(1, true)
-		assert.Equal(t, 1, nd.leftHeight)
-		assert.Equal(t, 0, nd.rightHeight)
+		assert.NotPanics(t, func() { (*node)(nil).updateHeights() })
 	}
 	{
 		nd := newNode(nil, "", nil)
-		nd.setHeight(1, false)
+		nd.updateHeights()
 		assert.Equal(t, 0, nd.leftHeight)
-		assert.Equal(t, 1, nd.rightHeight)
+		assert.Equal(t, 0, nd.rightHeight)
+
+		nd.newLeftNode("", nil)
+		nd.left.leftHeight = 3
+		nd.newRightNode("", nil)
+		nd.right.rightHeight = 7
+
+		nd.updateHeights()
+		assert.Equal(t, 4, nd.leftHeight)
+		assert.Equal(t, 8, nd.rightHeight)
 	}
-}
-
-func TestNodeSetLeftHeight(t *testing.T) {
-	nd := newNode(nil, "", nil)
-	nd.setLeftHeight(1)
-	assert.Equal(t, 1, nd.leftHeight)
-	assert.Equal(t, 0, nd.rightHeight)
-}
-
-func TestNodeSetRightHeight(t *testing.T) {
-	nd := newNode(nil, "", nil)
-	nd.setRightHeight(1)
-	assert.Equal(t, 0, nd.leftHeight)
-	assert.Equal(t, 1, nd.rightHeight)
 }
 
 func TestNodeLeftRotate(t *testing.T) {
 	{
-		/*
-		 *    8 <= n
-		 *     \
-		 *      9     --> 9 <= nd
-		 *               /
-		 *              8
-		 */
+		nd := newNode(nil, "", nil)
+		assert.Panics(t, func() { nd.leftRotate() })
+	}
+	{
+		//
+		//    8 <= n
+		//     \
+		//      9     --> 9 <= nd
+		//               /
+		//              8
+		//
 		nd := newNode(nil, "8", nil)
 		nd.newRightNode("9", nil)
 
@@ -130,20 +143,21 @@ func TestNodeLeftRotate(t *testing.T) {
 		assert.Equal(t, false, nd.left.hasRight())
 	}
 	{
-		/*
-		 *   4 <= n
-		 *  / \
-		 * 2   9    -->      9 <= nd
-		 *    / \           / \
-		 *   8   12        4   12
-		 *                / \
-		 *               2   8
-		 */
+		//
+		//   4 <= n
+		//  / \
+		// 2   9    -->      9 <= nd
+		//    / \           / \
+		//   8   12        4   12
+		//                / \
+		//               2   8
+		//
 		nd := newNode(nil, "4", nil)
 		nd.newLeftNode("2", nil)
 		nd.newRightNode("9", nil)
 		nd.right.newLeftNode("8", nil)
 		nd.right.newRightNode("12", nil)
+		_ = testhelperRecursiveHeightsUpdate(nd)
 
 		nd = nd.leftRotate()
 
@@ -187,13 +201,17 @@ func TestNodeLeftRotate(t *testing.T) {
 
 func TestNodeRightRotate(t *testing.T) {
 	{
-		/*
-		 *     8 <= n
-		 *    /
-		 *   6         -->  6 <= nd
-		 *                   \
-		 *                    8
-		 */
+		nd := newNode(nil, "", nil)
+		assert.Panics(t, func() { nd.rightRotate() })
+	}
+	{
+		//
+		//     8 <= n
+		//    /
+		//   6         -->  6 <= nd
+		//                   \
+		//                    8
+		//
 		nd := newNode(nil, "8", nil)
 		nd.newLeftNode("6", nil)
 
@@ -215,20 +233,21 @@ func TestNodeRightRotate(t *testing.T) {
 		assert.Equal(t, false, nd.right.hasRight())
 	}
 	{
-		/*
-		 *     8 <= n
-		 *    / \
-		 *   4   9  -->   4 <= nd
-		 *  / \          / \
-		 * 2   5        2   8
-		 *                 / \
-		 *                5   9
-		 */
+		//
+		//     8 <= n
+		//    / \
+		//   4   9  -->   4 <= nd
+		//  / \          / \
+		// 2   5        2   8
+		//                 / \
+		//                5   9
+		//
 		nd := newNode(nil, "8", nil)
 		nd.newLeftNode("4", nil)
 		nd.left.newLeftNode("2", nil)
 		nd.left.newRightNode("5", nil)
 		nd.newRightNode("9", nil)
+		_ = testhelperRecursiveHeightsUpdate(nd)
 
 		nd = nd.rightRotate()
 
@@ -322,16 +341,17 @@ func TestNodeBalance(t *testing.T) {
 	}
 	// left imbalance
 	{
-		/*
-		 *      8
-		 *     /
-		 *    6    ->    6
-		 *   /          / \
-		 *  4          4   8
-		 */
+		//
+		//      8
+		//     /
+		//    6    ->    6
+		//   /          / \
+		//  4          4   8
+		//
 		nd := newNode(nil, "8", nil)
 		nd.newLeftNode("6", nil)
 		nd.left.newLeftNode("4", nil)
+		_ = testhelperRecursiveHeightsUpdate(nd)
 
 		nd = nd.balance()
 		assert.Equal(t, "6", nd.key)
@@ -340,16 +360,17 @@ func TestNodeBalance(t *testing.T) {
 	}
 	// right imbalance
 	{
-		/*
-		 *  4
-		 *   \
-		 *    6    ->    6
-		 *     \        / \
-		 *      8      4   8
-		 */
+		//
+		//  4
+		//   \
+		//    6    ->    6
+		//     \        / \
+		//      8      4   8
+		//
 		nd := newNode(nil, "4", nil)
 		nd.newRightNode("6", nil)
 		nd.right.newRightNode("8", nil)
+		_ = testhelperRecursiveHeightsUpdate(nd)
 
 		nd = nd.balance()
 		assert.Equal(t, "6", nd.key)
@@ -358,16 +379,17 @@ func TestNodeBalance(t *testing.T) {
 	}
 	// left-right imbalance
 	{
-		/*
-		 *  4
-		 *   \
-		 *    8    ->     6
-		 *   /           / \
-		 *  6           4   8
-		 */
+		//
+		//  4
+		//   \
+		//    8    ->     6
+		//   /           / \
+		//  6           4   8
+		//
 		nd := newNode(nil, "4", nil)
 		nd.newRightNode("8", nil)
 		nd.right.newLeftNode("6", nil)
+		_ = testhelperRecursiveHeightsUpdate(nd)
 
 		nd = nd.balance()
 		assert.Equal(t, "6", nd.key)
@@ -376,16 +398,17 @@ func TestNodeBalance(t *testing.T) {
 	}
 	// right-left imbalance
 	{
-		/*
-		 *     8
-		 *    /
-		 *   4    ->    6
-		 *    \        / \
-		 *     6      4   8
-		 */
+		//
+		//     8
+		//    /
+		//   4    ->    6
+		//    \        / \
+		//     6      4   8
+		//
 		nd := newNode(nil, "8", nil)
 		nd.newLeftNode("4", nil)
 		nd.left.newRightNode("6", nil)
+		_ = testhelperRecursiveHeightsUpdate(nd)
 
 		nd = nd.balance()
 		assert.Equal(t, "6", nd.key)
@@ -394,21 +417,22 @@ func TestNodeBalance(t *testing.T) {
 	}
 	// complex imbalance
 	{
-		/*
-		 *    2
-		 *   / \
-		 *  1   7    -->      4
-		 *     / \           / \
-		 *    4   9         2   7
-		 *     \           /   / \
-		 *      5         1   5   9
-		 */
+		//
+		//    2
+		//   / \
+		//  1   7    -->      4
+		//     / \           / \
+		//    4   9         2   7
+		//     \           /   / \
+		//      5         1   5   9
+		//
 		nd := newNode(nil, "2", nil)
 		nd.newLeftNode("1", nil)
 		nd.newRightNode("7", nil)
 		nd.right.newLeftNode("4", nil)
 		nd.right.newRightNode("9", nil)
 		nd.right.left.newRightNode("5", nil)
+		_ = testhelperRecursiveHeightsUpdate(nd)
 
 		nd = nd.balance()
 		assert.Equal(t, "4", nd.key)
@@ -420,68 +444,74 @@ func TestNodeBalance(t *testing.T) {
 	}
 }
 
-// Some test cases loosely based on https://www.youtube.com/watch?v=7m94k2Qhg68
 func TestNodeUpsert(t *testing.T) {
-	/*
-	 *    2             2
-	 *   / \           / \
-	 *  1   7    -->  1   7    -->      4
-	 *     / \           / \           / \
-	 *    4   9         4   9         2   7
-	 *                   \           /   / \
-	 *                   *5*        1   5   9
-	 */
+	//
+	//    2             2
+	//   / \           / \
+	//  1   7    -->  1   7    -->      4
+	//     / \           / \           / \
+	//    4   9         4   9         2   7
+	//                   \           /   / \
+	//                   *5*        1   5   9
+	//
 	{
 		nd := newNode(nil, "2", nil)
 		nd.newLeftNode("1", nil)
 		nd.newRightNode("7", nil)
 		nd.right.newLeftNode("4", nil)
-		nd.right.newRightNode("9", nil)
+		nd.right.newRightNode("8", nil)
+		_ = testhelperRecursiveHeightsUpdate(nd)
 
 		nd = nd.upsert("5", nil)
+		assert.Equal(t, 2, nd.leftHeight)
+		assert.Equal(t, 2, nd.rightHeight)
 		assert.Equal(t, "4", nd.key)
 		assert.Equal(t, "2", nd.left.key)
 		assert.Equal(t, "1", nd.left.left.key)
 		assert.Equal(t, "7", nd.right.key)
 		assert.Equal(t, "5", nd.right.left.key)
-		assert.Equal(t, "9", nd.right.right.key)
+		assert.Equal(t, "8", nd.right.right.key)
 
-		/*
-		 *      4               4
-		 *     / \             / \
-		 *    2   7   ->      2   7
-		 *   /   / \         /   / \
-		 *  1   5   9       1   5   9
-		 *                           \
-		 *                            91
-		 */
+		//
+		//      4               4
+		//     / \             / \
+		//    2   7   ->      2   7
+		//   /   / \         /   / \
+		//  1   5   8       1   5   8
+		//                           \
+		//                            91
+		//
 		nd = nd.upsert("91", nil)
+		assert.Equal(t, 2, nd.leftHeight)
+		assert.Equal(t, 3, nd.rightHeight)
 		assert.Equal(t, "4", nd.key)
 		assert.Equal(t, "2", nd.left.key)
 		assert.Equal(t, "1", nd.left.left.key)
 		assert.Equal(t, "7", nd.right.key)
 		assert.Equal(t, "5", nd.right.left.key)
-		assert.Equal(t, "9", nd.right.right.key)
+		assert.Equal(t, "8", nd.right.right.key)
 		assert.Equal(t, "91", nd.right.right.right.key)
 
-		/*
-		 *      4                    7
-		 *     / \                 /   \
-		 *    2   7       ->      4     90
-		 *   /   / \             / \   / \
-		 *  1   5   9           2   5 9   91
-		 *           \         /
-		 *            91      1
-		 */
+		//
+		//      4                    4
+		//     / \                 /   \
+		//    2   7       ->      2     7
+		//   /   / \             /     / \
+		//  1   5   8           1     5   90
+		//           \                   /  \
+		//            91                8   91
+		//
 		nd = nd.upsert("90", nil)
-		assert.Equal(t, "7", nd.key)
-		assert.Equal(t, "4", nd.left.key)
-		assert.Equal(t, "90", nd.right.key)
-		assert.Equal(t, "2", nd.left.left.key)
-		assert.Equal(t, "5", nd.left.right.key)
-		assert.Equal(t, "9", nd.right.left.key)
-		assert.Equal(t, "91", nd.right.right.key)
-		assert.Equal(t, "1", nd.left.left.left.key)
+		assert.Equal(t, 2, nd.leftHeight)
+		assert.Equal(t, 3, nd.rightHeight)
+		assert.Equal(t, "4", nd.key)
+		assert.Equal(t, "2", nd.left.key)
+		assert.Equal(t, "7", nd.right.key)
+		assert.Equal(t, "1", nd.left.left.key)
+		assert.Equal(t, "5", nd.right.left.key)
+		assert.Equal(t, "90", nd.right.right.key)
+		assert.Equal(t, "8", nd.right.right.left.key)
+		assert.Equal(t, "91", nd.right.right.right.key)
 	}
 	// change value
 	{
@@ -489,6 +519,40 @@ func TestNodeUpsert(t *testing.T) {
 
 		nd.upsert("foo", 1338)
 		assert.Equal(t, 1338, nd.value)
+	}
+	// balancing upserts
+	{
+		nd := newNode(nil, "10", nil)
+
+		nd = nd.upsert("20", nil)
+		assert.Equal(t, "10", nd.key)
+		assert.Equal(t, 0, nd.leftHeight)
+		assert.Equal(t, 1, nd.rightHeight)
+
+		nd = nd.upsert("30", nil)
+		assert.Equal(t, "20", nd.key)
+		assert.Equal(t, 1, nd.leftHeight)
+		assert.Equal(t, 1, nd.rightHeight)
+
+		nd = nd.upsert("40", nil)
+		assert.Equal(t, "20", nd.key)
+		assert.Equal(t, 1, nd.leftHeight)
+		assert.Equal(t, 2, nd.rightHeight)
+
+		nd = nd.upsert("05", nil)
+		assert.Equal(t, "20", nd.key)
+		assert.Equal(t, 2, nd.leftHeight)
+		assert.Equal(t, 2, nd.rightHeight)
+
+		nd = nd.upsert("03", nil)
+		assert.Equal(t, "20", nd.key)
+		assert.Equal(t, 2, nd.leftHeight)
+		assert.Equal(t, 2, nd.rightHeight)
+
+		nd = nd.upsert("02", nil)
+		assert.Equal(t, "20", nd.key)
+		assert.Equal(t, 3, nd.leftHeight)
+		assert.Equal(t, 2, nd.rightHeight)
 	}
 }
 
@@ -513,5 +577,234 @@ func TestNodeLookup(t *testing.T) {
 
 		_, err = nd.lookup("bar")
 		assert.Equal(t, ErrorNotFound, err)
+	}
+}
+
+func TestNodeDelete(t *testing.T) {
+	// delete nonexistent
+	{
+		_, err := (*node)(nil).delete("")
+		assert.Equal(t, ErrorNotFound, err)
+	}
+	// delete left leaf node from level-1 tree
+	{
+		//
+		//   02        02
+		//  /  \  ->     \
+		// 01  03        03
+		//
+		nd := newNode(nil, "01", nil)
+		nd = nd.upsert("02", nil)
+		nd = nd.upsert("03", nil)
+
+		nd, err := nd.delete("01")
+		assert.Equal(t, nil, err)
+
+		assert.Equal(t, "02", nd.key)
+		assert.Equal(t, false, nd.hasLeft())
+		assert.Equal(t, true, nd.hasRight())
+		assert.Equal(t, 0, nd.leftHeight)
+		assert.Equal(t, 1, nd.rightHeight)
+
+		assert.Equal(t, "03", nd.right.key)
+		assert.Equal(t, false, nd.right.hasLeft())
+		assert.Equal(t, false, nd.right.hasRight())
+		assert.Equal(t, 0, nd.right.leftHeight)
+		assert.Equal(t, 0, nd.right.rightHeight)
+	}
+	// delete right leaf node from level-1 tree
+	{
+		//
+		//   02        02
+		//  /  \  ->  /
+		// 01  03    01
+		//
+		nd := newNode(nil, "01", nil)
+		nd = nd.upsert("02", nil)
+		nd = nd.upsert("03", nil)
+
+		nd, err := nd.delete("03")
+		assert.Equal(t, nil, err)
+
+		assert.Equal(t, "02", nd.key)
+		assert.Equal(t, true, nd.hasLeft())
+		assert.Equal(t, false, nd.hasRight())
+		assert.Equal(t, 1, nd.leftHeight)
+		assert.Equal(t, 0, nd.rightHeight)
+
+		assert.Equal(t, "01", nd.left.key)
+		assert.Equal(t, false, nd.left.hasLeft())
+		assert.Equal(t, false, nd.left.hasRight())
+		assert.Equal(t, 0, nd.left.leftHeight)
+		assert.Equal(t, 0, nd.left.rightHeight)
+	}
+	// delete left leaf node from level-2 tree
+	{
+		//
+		//        04                  04
+		//     /      \            /      \
+		//    02      06    ->    02      06
+		//   /  \    /  \           \    /  \
+		//  01  03  05  07          03  05  07
+		//
+		nd := newNode(nil, "01", nil)
+		nd = nd.upsert("02", nil)
+		nd = nd.upsert("03", nil)
+		nd = nd.upsert("04", nil)
+		nd = nd.upsert("05", nil)
+		nd = nd.upsert("06", nil)
+		nd = nd.upsert("07", nil)
+
+		nd, err := nd.delete("01")
+		assert.Equal(t, nil, err)
+
+		assert.Equal(t, "04", nd.key)
+		assert.Equal(t, true, nd.hasLeft())
+		assert.Equal(t, true, nd.hasRight())
+		assert.Equal(t, 2, nd.leftHeight)
+		assert.Equal(t, 2, nd.rightHeight)
+
+		assert.Equal(t, "02", nd.left.key)
+		assert.Equal(t, false, nd.left.hasLeft())
+		assert.Equal(t, true, nd.left.hasRight())
+		assert.Equal(t, 0, nd.left.leftHeight)
+		assert.Equal(t, 1, nd.left.rightHeight)
+	}
+	// delete right leaf node from level-2 tree
+	{
+		//
+		//        04                  04
+		//     /      \            /      \
+		//    02      06    ->    02      06
+		//   /  \    /  \        /       /  \
+		//  01  03  05  07      01      05  07
+		//
+		nd := newNode(nil, "01", nil)
+		nd = nd.upsert("02", nil)
+		nd = nd.upsert("03", nil)
+		nd = nd.upsert("04", nil)
+		nd = nd.upsert("05", nil)
+		nd = nd.upsert("06", nil)
+		nd = nd.upsert("07", nil)
+
+		nd, err := nd.delete("03")
+		assert.Equal(t, nil, err)
+
+		assert.Equal(t, "04", nd.key)
+		assert.Equal(t, true, nd.hasLeft())
+		assert.Equal(t, true, nd.hasRight())
+		assert.Equal(t, 2, nd.leftHeight)
+		assert.Equal(t, 2, nd.rightHeight)
+
+		assert.Equal(t, "02", nd.left.key)
+		assert.Equal(t, true, nd.left.hasLeft())
+		assert.Equal(t, false, nd.left.hasRight())
+		assert.Equal(t, 1, nd.left.leftHeight)
+		assert.Equal(t, 0, nd.left.rightHeight)
+	}
+	// delete node with left child only
+	{
+		//
+		//        04                  04
+		//     /      \            /      \
+		//    02      06    ->    01      06
+		//   /
+		//  01
+		//
+		nd := newNode(nil, "04", nil)
+		nd = nd.upsert("02", nil)
+		nd = nd.upsert("06", nil)
+		nd = nd.upsert("01", nil)
+
+		nd, err := nd.delete("02")
+		assert.Equal(t, nil, err)
+
+		assert.Equal(t, "04", nd.key)
+		assert.Equal(t, true, nd.hasLeft())
+		assert.Equal(t, true, nd.hasRight())
+		assert.Equal(t, 1, nd.leftHeight)
+		assert.Equal(t, 1, nd.rightHeight)
+
+		assert.Equal(t, "01", nd.left.key)
+		assert.Equal(t, false, nd.left.hasLeft())
+		assert.Equal(t, false, nd.left.hasRight())
+		assert.Equal(t, 0, nd.left.leftHeight)
+		assert.Equal(t, 0, nd.left.rightHeight)
+
+		assert.Equal(t, "06", nd.right.key)
+		assert.Equal(t, false, nd.right.hasLeft())
+		assert.Equal(t, false, nd.right.hasRight())
+		assert.Equal(t, 0, nd.right.leftHeight)
+		assert.Equal(t, 0, nd.right.rightHeight)
+	}
+	// delete node with right child only
+	{
+		//
+		//        04                  04
+		//     /      \            /      \
+		//    02      06    ->    03      06
+		//      \
+		//      03
+		//
+		nd := newNode(nil, "04", nil)
+		nd = nd.upsert("02", nil)
+		nd = nd.upsert("06", nil)
+		nd = nd.upsert("03", nil)
+
+		nd, err := nd.delete("02")
+		assert.Equal(t, nil, err)
+
+		assert.Equal(t, "04", nd.key)
+		assert.Equal(t, true, nd.hasLeft())
+		assert.Equal(t, true, nd.hasRight())
+		assert.Equal(t, 1, nd.leftHeight)
+		assert.Equal(t, 1, nd.rightHeight)
+
+		assert.Equal(t, "03", nd.left.key)
+		assert.Equal(t, false, nd.left.hasLeft())
+		assert.Equal(t, false, nd.left.hasRight())
+		assert.Equal(t, 0, nd.left.leftHeight)
+		assert.Equal(t, 0, nd.left.rightHeight)
+
+		assert.Equal(t, "06", nd.right.key)
+		assert.Equal(t, false, nd.right.hasLeft())
+		assert.Equal(t, false, nd.right.hasRight())
+		assert.Equal(t, 0, nd.right.leftHeight)
+		assert.Equal(t, 0, nd.right.rightHeight)
+	}
+	// delete node with two children
+	{
+		//
+		//        40                  40                  40
+		//     /      \            /      \            /      \
+		//    20     *60*   ->    20      60    ->    20     *70*
+		//   /  \    /  \        /  \    /  \        /  \    /  \
+		//  10  30  50  75      10  30  50  75      10  30  50  75
+		//             /                    /
+		//            70                  *70*
+		//
+		nd := newNode(nil, "10", nil)
+		nd = nd.upsert("20", nil)
+		nd = nd.upsert("30", nil)
+		nd = nd.upsert("40", nil)
+		nd = nd.upsert("50", nil)
+		nd = nd.upsert("60", nil)
+		nd = nd.upsert("75", nil)
+		nd = nd.upsert("70", nil)
+
+		nd, err := nd.delete("60")
+		assert.Equal(t, nil, err)
+
+		assert.Equal(t, "40", nd.key)
+		assert.Equal(t, true, nd.hasLeft())
+		assert.Equal(t, true, nd.hasRight())
+		assert.Equal(t, 2, nd.leftHeight)
+		assert.Equal(t, 2, nd.rightHeight)
+
+		assert.Equal(t, "70", nd.right.key)
+		assert.Equal(t, true, nd.right.hasLeft())
+		assert.Equal(t, true, nd.right.hasRight())
+		assert.Equal(t, 1, nd.right.leftHeight)
+		assert.Equal(t, 1, nd.right.rightHeight)
 	}
 }
