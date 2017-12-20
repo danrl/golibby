@@ -19,6 +19,10 @@ type node struct {
 // ErrorNotFound is returned when a key was not found in the AVL tree
 var ErrorNotFound = fmt.Errorf("not found")
 
+func (n *node) hasParent() bool {
+	return n.parent != nil
+}
+
 func (n *node) hasLeft() bool {
 	return n.left != nil
 }
@@ -47,35 +51,20 @@ func (n *node) height() int {
 	return utils.Max(n.leftHeight, n.rightHeight)
 }
 
-func (n *node) setHeight(height int, left bool) {
-	old := n.height()
-	if left {
-		n.leftHeight = height
+func (n *node) updateHeights() {
+	if n == nil {
+		return
+	}
+	if n.hasLeft() {
+		n.leftHeight = 1 + n.left.height()
 	} else {
-		n.rightHeight = height
+		n.leftHeight = 0
 	}
-	if n.parent == nil {
-		return
+	if n.hasRight() {
+		n.rightHeight = 1 + n.right.height()
+	} else {
+		n.rightHeight = 0
 	}
-	if old == n.height() {
-		return
-	}
-	// update parent
-	if n == n.parent.left {
-		n.parent.setHeight(1+height, true)
-	} else if n == n.parent.right {
-		n.parent.setHeight(1+height, false)
-	}
-}
-
-func (n *node) setLeftHeight(height int) {
-	n.setHeight(height, true)
-	return
-}
-
-func (n *node) setRightHeight(height int) {
-	n.setHeight(height, false)
-	return
 }
 
 func newNode(parent *node, key string, value interface{}) *node {
@@ -88,163 +77,149 @@ func newNode(parent *node, key string, value interface{}) *node {
 
 func (n *node) newLeftNode(key string, value interface{}) {
 	n.left = newNode(n, key, value)
-	n.setLeftHeight(1)
+	n.leftHeight = 1
 }
 
 func (n *node) newRightNode(key string, value interface{}) {
 	n.right = newNode(n, key, value)
-	n.setRightHeight(1)
+	n.rightHeight = 1
 }
 
-/*
- *    8 <= n
- *     \
- *      9     --> 9 <= nd
- *               /
- *              8
- * ---
- *   4 <= n
- *  / \
- * 2   9    -->      9 <= nd
- *    / \           / \
- *   8   12        4   12
- *                / \
- *               2   8
- */
+//
+//   n
+//  / \
+// x1  nr   -->      nr
+//    / \           / \
+//   x2 x3         n  x3
+//                / \
+//               x1 x2
+//
+
 func (n *node) leftRotate() *node {
-	// old root's right child becomes new root
+	if n.right == nil {
+		panic("node not right rotatable")
+	}
+	// define nr
 	nr := n.right
 	nr.parent = n.parent
-	// new root's left child becomes old root's right child
-	n.right = nr.left
-	if n.right != nil {
+	// cut out nr
+	n.right = n.right.left
+	if n.hasRight() {
 		n.right.parent = n
 	}
-	// old root becomes new's left child
+	// move n down
 	nr.left = n
-	nr.left.parent = nr
-
+	nr.left.parent = n
 	// update heights
-	if n.hasRight() {
-		n.setRightHeight(n.right.height() + 1)
-	} else {
-		n.setRightHeight(0)
-	}
-	nr.setLeftHeight(nr.left.height() + 1)
+	n.updateHeights()
+	nr.updateHeights()
 	return nr
 }
 
-/*
- *    8 <= n
- *   /
- *  6         --> 6 <= nd
- *                 \
- *                  8
- * ---
- *      8 <= n
- *     / \
- *    4   9  -->   4 <= nd
- *   / \          / \
- *  2   5        2   8
- *                  / \
- *                 5   9
- */
-
+//
+//      n
+//     / \
+//    nr x3  -->   nr
+//   / \          / \
+//  x1 x2       x1   n
+//                  / \
+//                 x2 x3
+//
 func (n *node) rightRotate() *node {
-	// old root's left child becomes new root
+	if n.left == nil {
+		panic("node not right rotatable")
+	}
+	// define nr
 	nr := n.left
 	nr.parent = n.parent
-	// new root's right child becomes old root's left child
-	n.left = nr.right
-	if n.left != nil {
+	// cut out nr
+	n.left = n.left.right
+	if n.hasLeft() {
 		n.left.parent = n
 	}
-	// old root becomes new's right child
+	// move n down
 	nr.right = n
-	nr.right.parent = nr
-
+	nr.right.parent = n
 	// update heights
-	if n.hasLeft() {
-		n.setLeftHeight(n.left.height() + 1)
-	} else {
-		n.setLeftHeight(0)
-	}
-	nr.setRightHeight(nr.right.height() + 1)
+	n.updateHeights()
+	nr.updateHeights()
 	return nr
 }
 
-/*
- *    2             2             2
- *   / \           / \           / \
- *  1   7    -->  1   7    -->  1   4    -->      4
- *     / \           / \           / \           / \
- *    4   9         4   9         5   7         2   7
- *                   \                 \       / \   \
- *                   *5*                9     1   5   9
- */
+//
+//    2             2             2
+//   / \           / \           / \
+//  1   7    -->  1   7    -->  1   4    -->      4
+//     / \           / \           / \           / \
+//    4   9         4   9         5   7         2   7
+//                   \                 \       / \   \
+//                   *5*                9     1   5   9
+//
 func (n *node) balance() *node {
 	if n.hasLeftViolation() {
 		if n.left.hasRightImbalance() {
-			/*
-			 *     8          8
-			 *    /          /
-			 *   4    ->    6
-			 *    \        /
-			 *     6      4
-			 */
+			//
+			//     8          8
+			//    /          /
+			//   4    ->    6
+			//    \        /
+			//     6      4
+			//
 			n.left = n.left.leftRotate()
+			n.updateHeights()
 		}
-		/*
-		 *      8
-		 *     /
-		 *    6    ->    6
-		 *   /          / \
-		 *  4          4   8
-		 */
+		//
+		//      8
+		//     /
+		//    6    ->    6
+		//   /          / \
+		//  4          4   8
+		//
 		n = n.rightRotate()
 	} else if n.hasRightViolation() {
 		if n.right.hasLeftImbalance() {
-			/*
-			 *  4          4
-			 *   \          \
-			 *    8    ->    6
-			 *   /            \
-			 *  6              8
-			 */
+			//
+			//  4          4
+			//   \          \
+			//    8    ->    6
+			//   /            \
+			//  6              8
+			//
 			n.right = n.right.rightRotate()
+			n.updateHeights()
 		}
-		/*
-		 *  4
-		 *   \
-		 *    6    ->    6
-		 *     \        / \
-		 *      8      4   8
-		 */
+		//
+		//  4
+		//   \
+		//    6    ->    6
+		//     \        / \
+		//      8      4   8
+		//
 		n = n.leftRotate()
 	}
+	n.updateHeights()
 	return n
 }
 
 func (n *node) upsert(key string, value interface{}) *node {
 	if n == nil {
 		return newNode(nil, key, value)
-	}
-	if key == n.key {
-		n.value = value
-		return n
-	}
-	if key < n.key {
+	} else if key < n.key {
 		if n.hasLeft() {
 			n.left = n.left.upsert(key, value)
 		} else {
 			n.newLeftNode(key, value)
 		}
-	} else {
+		n.updateHeights()
+	} else if key > n.key {
 		if n.hasRight() {
 			n.right = n.right.upsert(key, value)
 		} else {
 			n.newRightNode(key, value)
 		}
+		n.updateHeights()
+	} else {
+		n.value = value
 	}
 	return n.balance()
 }
@@ -260,4 +235,46 @@ func (n *node) lookup(key string) (interface{}, error) {
 		return n.right.lookup(key)
 	}
 	return n.value, nil
+}
+
+//
+//   02        02
+//  /  \  ->  /
+// 01  03    01
+//
+func (n *node) delete(key string) (*node, error) {
+	if n == nil {
+		return n, ErrorNotFound
+	}
+	var err error
+	if key < n.key {
+		n.left, err = n.left.delete(key)
+	} else if key > n.key {
+		n.right, err = n.right.delete(key)
+	} else {
+		// delete node
+		if !n.hasLeft() && !n.hasRight() {
+			// case: leaf node
+			return nil, nil
+		} else if n.hasLeft() && !n.hasRight() {
+			// case: left child only
+			return n.left, nil
+		} else if !n.hasLeft() && n.hasRight() {
+			// case: right child only
+			return n.right, nil
+		}
+		// case: two children
+		// find leftmost node of right subtree
+		nd := n.right
+		for ; nd.hasLeft(); nd = nd.left {
+		}
+		// replace to-be-deleted node's key value pair with leftmost node's
+		// key value pair
+		n.key = nd.key
+		n.value = nd.value
+		// delete leftmost node
+		n.right, _ = n.right.delete(nd.key)
+	}
+	n.updateHeights()
+	return n.balance(), err
 }
