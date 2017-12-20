@@ -806,5 +806,17 @@ func TestNodeDelete(t *testing.T) {
 		assert.Equal(t, true, nd.right.hasRight())
 		assert.Equal(t, 1, nd.right.leftHeight)
 		assert.Equal(t, 1, nd.right.rightHeight)
+
+		assert.Equal(t, "50", nd.right.left.key)
+		assert.Equal(t, false, nd.right.left.hasLeft())
+		assert.Equal(t, false, nd.right.left.hasRight())
+		assert.Equal(t, 0, nd.right.left.leftHeight)
+		assert.Equal(t, 0, nd.right.left.rightHeight)
+
+		assert.Equal(t, "75", nd.right.right.key)
+		assert.Equal(t, false, nd.right.right.hasLeft())
+		assert.Equal(t, false, nd.right.right.hasRight())
+		assert.Equal(t, 0, nd.right.right.leftHeight)
+		assert.Equal(t, 0, nd.right.right.rightHeight)
 	}
 }
