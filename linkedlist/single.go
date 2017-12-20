@@ -37,7 +37,7 @@ func (s *Single) Append(val interface{}) {
 	cur.next = new
 }
 
-// Remove deletes the first occurence of val from the single linked list
+// Remove deletes the first occurrence of val from the single linked list
 func (s *Single) Remove(val interface{}) error {
 	var prev *item
 	for cur := s.head; cur != nil; cur = cur.next {
