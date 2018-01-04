@@ -12,36 +12,38 @@ var (
 	path3 = []string{"lvl-1", "lvl-2", "lvl-3"}
 )
 
-func TestNew(t *testing.T) {
+func TestTrieNew(t *testing.T) {
 	tr := New()
 	assert.NotEqual(t, nil, tr)
 }
 
-func TestSetData(t *testing.T) {
+func TestTrieUpsert(t *testing.T) {
 	tr := New()
-	tr.Upsert(path2, 2)
 
-	// epecting data at path2
-	data, err := tr.Data(path2)
-	assert.Equal(t, 2, data)
-	assert.Equal(t, nil, err)
-
-	// epecting no data at path1
-	_, err = tr.Data(path1)
-	assert.Equal(t, ErrorNoData, err)
+	assert.NotPanics(t, func() { tr.Upsert(path2, 23) })
 }
 
-func TestData(t *testing.T) {
-	path := []string{"foo", "bar"}
-
-	tr := New()
-	_, err := tr.Data(path)
-	assert.Equal(t, ErrorNotFound, err)
-}
-
-func TestRemove(t *testing.T) {
+func TestTrieData(t *testing.T) {
 	{
 		tr := New()
+
+		_, err := tr.Data(path1)
+		assert.Equal(t, ErrorNotFound, err)
+	}
+	{
+		tr := New()
+		tr.Upsert(path2, 23)
+
+		value, err := tr.Data(path2)
+		assert.Equal(t, 23, value)
+		assert.Equal(t, nil, err)
+	}
+}
+
+func TestTrieDelete(t *testing.T) {
+	{
+		tr := New()
+
 		err := tr.Delete(path3)
 		assert.Equal(t, ErrorNotFound, err)
 	}
