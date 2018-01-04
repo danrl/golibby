@@ -1,6 +1,9 @@
 package linkedlist
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 type item struct {
 	next *item
@@ -10,6 +13,7 @@ type item struct {
 // Single represents a single linked list
 type Single struct {
 	head *item
+	lock sync.RWMutex
 }
 
 var (
@@ -24,6 +28,8 @@ func NewSingle() *Single {
 
 // Append adds val to the end of the single linked list
 func (s *Single) Append(val interface{}) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
 	new := &item{
 		val: val,
 	}
@@ -39,6 +45,8 @@ func (s *Single) Append(val interface{}) {
 
 // Remove deletes the first occurrence of val from the single linked list
 func (s *Single) Remove(val interface{}) error {
+	s.lock.Lock()
+	defer s.lock.Unlock()
 	var prev *item
 	for cur := s.head; cur != nil; cur = cur.next {
 		if cur.val == val {
@@ -57,10 +65,12 @@ func (s *Single) Remove(val interface{}) error {
 // Iter provides an iterator to walk through the single linked list
 func (s *Single) Iter() <-chan interface{} {
 	ch := make(chan interface{})
+	s.lock.RLock()
 	go func() {
 		for cur := s.head; cur != nil; cur = cur.next {
 			ch <- cur.val
 		}
+		s.lock.RUnlock()
 		close(ch)
 	}()
 	return ch
@@ -68,6 +78,8 @@ func (s *Single) Iter() <-chan interface{} {
 
 // Len returns the number of items in the single linked list
 func (s *Single) Len() int {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 	var i int
 	for cur := s.head; cur != nil; cur = cur.next {
 		i++
