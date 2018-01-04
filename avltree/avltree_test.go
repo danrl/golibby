@@ -44,3 +44,16 @@ func TestAVLTreeDelete(t *testing.T) {
 		assert.Equal(t, nil, err)
 	}
 }
+
+func TestAVLTreeIter(t *testing.T) {
+	avl := New()
+	avl.Upsert("1", nil)
+	avl.Upsert("2", nil)
+	avl.Upsert("3", nil)
+
+	var n int
+	for range avl.Iter() {
+		n++
+	}
+	assert.Equal(t, 3, n)
+}

@@ -11,6 +11,12 @@ type AVLTree struct {
 	root *node
 }
 
+// Item holds the key and value of a node to be returned by an iterator
+type Item struct {
+	Key string
+	Val interface{}
+}
+
 // New initiates a new AVL tree
 func New() *AVLTree {
 	return &AVLTree{}
@@ -41,4 +47,16 @@ func (a *AVLTree) Delete(key string) error {
 	var err error
 	a.root, err = a.root.delete(key)
 	return err
+}
+
+// Iter provides an iterator to walk through the AVL tree
+func (a *AVLTree) Iter() <-chan Item {
+	ch := make(chan Item)
+	a.lock.RLock()
+	go func() {
+		a.root.iter(ch)
+		a.lock.RUnlock()
+		close(ch)
+	}()
+	return ch
 }

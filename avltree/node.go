@@ -278,3 +278,15 @@ func (n *node) delete(key string) (*node, error) {
 	n.updateHeights()
 	return n.balance(), err
 }
+
+func (n *node) iter(ch chan<- Item) {
+	if n == nil {
+		return
+	}
+	n.left.iter(ch)
+	ch <- Item{
+		Key: n.key,
+		Val: n.value,
+	}
+	n.right.iter(ch)
+}
