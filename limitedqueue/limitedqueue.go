@@ -2,6 +2,7 @@ package limitedqueue
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/danrl/golibby/queue"
 )
@@ -10,6 +11,7 @@ import (
 type LimitedQueue struct {
 	queue  queue.Queue
 	maxlen int
+	lock   sync.RWMutex
 }
 
 var (
@@ -33,12 +35,16 @@ func New(maxlen int) (*LimitedQueue, error) {
 
 // Len returns the number of items in the limited queue
 func (q *LimitedQueue) Len() int {
+	q.lock.RLock()
+	defer q.lock.RUnlock()
 	return q.queue.Len()
 }
 
 // Add adds an item at the end of the limited queue
 func (q *LimitedQueue) Add(item interface{}) error {
-	if q.Len() >= q.maxlen {
+	q.lock.Lock()
+	defer q.lock.Unlock()
+	if q.queue.Len() >= q.maxlen {
 		return ErrorFull
 	}
 	q.queue.Add(item)
@@ -47,6 +53,8 @@ func (q *LimitedQueue) Add(item interface{}) error {
 
 // Peek returns the first item from the limited queue without removing it
 func (q *LimitedQueue) Peek() (interface{}, error) {
+	q.lock.RLock()
+	defer q.lock.RUnlock()
 	item, err := q.queue.Peek()
 	if err != nil {
 		return nil, ErrorEmpty
@@ -56,6 +64,8 @@ func (q *LimitedQueue) Peek() (interface{}, error) {
 
 // Remove returns the first item from the limited queue
 func (q *LimitedQueue) Remove() (interface{}, error) {
+	q.lock.Lock()
+	defer q.lock.Unlock()
 	item, err := q.queue.Remove()
 	if err != nil {
 		return nil, ErrorEmpty
