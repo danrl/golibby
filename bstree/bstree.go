@@ -2,6 +2,7 @@ package bstree
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/danrl/golibby/utils"
 )
@@ -22,6 +23,7 @@ type node struct {
 // BSTree represents a binary search tree
 type BSTree struct {
 	root *node
+	lock sync.RWMutex
 }
 
 // New returns an initialized binary search tree
@@ -53,6 +55,8 @@ func (n *node) value(key string) (interface{}, error) {
 
 // Value returns the data associated with a given key
 func (b *BSTree) Value(key string) (interface{}, error) {
+	b.lock.RLock()
+	defer b.lock.RUnlock()
 	return b.root.value(key)
 }
 
@@ -77,6 +81,8 @@ func (n *node) upsert(key string, val interface{}) error {
 
 // Upsert updates or inserts data associated to a given key
 func (b *BSTree) Upsert(key string, val interface{}) error {
+	b.lock.Lock()
+	defer b.lock.Unlock()
 	// if root node is empty, new node is root now
 	if b.root == nil {
 		b.root = new(key, val)
@@ -139,7 +145,9 @@ func (n *node) delete(key string) (*node, error) {
 // Delete removes a key and associated data from a binsary search tree
 func (b *BSTree) Delete(k string) error {
 	var err error
+	b.lock.RLock()
 	b.root, err = b.root.delete(k)
+	b.lock.RUnlock()
 	return err
 }
 
@@ -170,8 +178,10 @@ func (n *node) iter(ch chan<- Item) {
 // Iter provides an iterator to walk through the binary search tree
 func (b *BSTree) Iter() <-chan Item {
 	ch := make(chan Item)
+	b.lock.RLock()
 	go func() {
 		b.root.iter(ch)
+		b.lock.RUnlock()
 		close(ch)
 	}()
 	return ch
