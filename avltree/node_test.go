@@ -820,3 +820,41 @@ func TestNodeDelete(t *testing.T) {
 		assert.Equal(t, 0, nd.right.right.rightHeight)
 	}
 }
+
+func TestNodeIter(t *testing.T) {
+	nd := newNode(nil, "01", "value-01")
+	nd = nd.upsert("02", "value-02")
+	nd = nd.upsert("03", "value-03")
+	nd = nd.upsert("04", "value-04")
+	nd = nd.upsert("05", "value-05")
+	ch := make(chan Item)
+	go func() {
+		nd.iter(ch)
+		close(ch)
+	}()
+
+	var n int
+	for i := range ch {
+		switch n {
+		case 0:
+			assert.Equal(t, "01", i.Key)
+			assert.Equal(t, "value-01", i.Val)
+		case 1:
+			assert.Equal(t, "02", i.Key)
+			assert.Equal(t, "value-02", i.Val)
+		case 2:
+			assert.Equal(t, "03", i.Key)
+			assert.Equal(t, "value-03", i.Val)
+		case 3:
+			assert.Equal(t, "04", i.Key)
+			assert.Equal(t, "value-04", i.Val)
+		case 4:
+			assert.Equal(t, "05", i.Key)
+			assert.Equal(t, "value-05", i.Val)
+		default:
+			assert.Fail(t, "iteration error")
+		}
+		n++
+	}
+	assert.Equal(t, 5, n)
+}
