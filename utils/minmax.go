@@ -1,17 +1,23 @@
 package utils
 
-// Min returns the smaller of two given integers
-func Min(a, b int) int {
-	if a < b {
-		return a
+// Min returns the smaller of two or more given integers
+func Min(a int, x ...int) int {
+	min := a
+	for _, v := range x {
+		if v < min {
+			min = v
+		}
 	}
-	return b
+	return min
 }
 
-// Max returns the larger of two given integers
-func Max(a, b int) int {
-	if a > b {
-		return a
+// Max returns the larger of two or more given integers
+func Max(a int, x ...int) int {
+	max := a
+	for _, v := range x {
+		if v > max {
+			max = v
+		}
 	}
-	return b
+	return max
 }
