@@ -14,12 +14,6 @@ type Stack struct {
 // ErrorEmptyStack is returned on illegal operations on an empty stack
 var ErrorEmptyStack = fmt.Errorf("empty stack")
 
-// New creates a new stack
-func New() *Stack {
-	var s Stack
-	return &s
-}
-
 // Len returns the number of items in a stack
 func (s *Stack) Len() int {
 	s.lock.RLock()

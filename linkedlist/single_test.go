@@ -6,13 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNew(t *testing.T) {
-	ll := NewSingle()
-	assert.NotEqual(t, nil, ll)
-}
-
 func TestAppend(t *testing.T) {
-	ll := NewSingle()
+	ll := LinkedList{}
 	ll.Append("foo")
 	assert.NotEqual(t, nil, ll.head)
 	assert.Equal(t, "foo", ll.head.val)
@@ -29,7 +24,7 @@ func TestAppend(t *testing.T) {
 func TestRemove(t *testing.T) {
 	// beginning
 	{
-		ll := NewSingle()
+		ll := LinkedList{}
 		ll.Append("foo")
 		ll.Append("bar")
 		ll.Append("lorem")
@@ -40,7 +35,7 @@ func TestRemove(t *testing.T) {
 	}
 	// middle
 	{
-		ll := NewSingle()
+		ll := LinkedList{}
 		ll.Append("foo")
 		ll.Append("bar")
 		ll.Append("lorem")
@@ -53,7 +48,7 @@ func TestRemove(t *testing.T) {
 	}
 	// end
 	{
-		ll := NewSingle()
+		ll := LinkedList{}
 		ll.Append("foo")
 		ll.Append("bar")
 		ll.Append("lorem")
@@ -63,7 +58,7 @@ func TestRemove(t *testing.T) {
 	}
 	// not found
 	{
-		ll := NewSingle()
+		ll := LinkedList{}
 		ll.Append("foo")
 		ll.Append("bar")
 
@@ -73,7 +68,7 @@ func TestRemove(t *testing.T) {
 }
 
 func TestIter(t *testing.T) {
-	ll := NewSingle()
+	ll := LinkedList{}
 	ll.Append("foo")
 	ll.Append("bar")
 	ll.Append("lorem")
@@ -92,7 +87,7 @@ func TestIter(t *testing.T) {
 }
 
 func TestLen(t *testing.T) {
-	ll := NewSingle()
+	ll := LinkedList{}
 	assert.Equal(t, 0, ll.Len())
 
 	ll.Append("foo")

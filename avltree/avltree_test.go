@@ -6,12 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNew(t *testing.T) {
-	assert.NotEqual(t, nil, New())
-}
-
 func TestAVLTreeUpsert(t *testing.T) {
-	avl := New()
+	avl := AVLTree{}
 
 	avl.Upsert("foo", nil)
 	assert.Equal(t, nil, avl.root.value)
@@ -21,7 +17,7 @@ func TestAVLTreeUpsert(t *testing.T) {
 }
 
 func TestAVLTreeLookup(t *testing.T) {
-	avl := New()
+	avl := AVLTree{}
 	avl.Upsert("foo", 1337)
 
 	value, err := avl.Lookup("foo")
@@ -31,13 +27,13 @@ func TestAVLTreeLookup(t *testing.T) {
 
 func TestAVLTreeDelete(t *testing.T) {
 	{
-		avl := New()
+		avl := AVLTree{}
 
 		err := avl.Delete("foo")
 		assert.Equal(t, ErrorNotFound, err)
 	}
 	{
-		avl := New()
+		avl := AVLTree{}
 		avl.Upsert("foo", 1337)
 
 		err := avl.Delete("foo")
@@ -46,7 +42,7 @@ func TestAVLTreeDelete(t *testing.T) {
 }
 
 func TestAVLTreeIter(t *testing.T) {
-	avl := New()
+	avl := AVLTree{}
 	avl.Upsert("1", nil)
 	avl.Upsert("2", nil)
 	avl.Upsert("3", nil)

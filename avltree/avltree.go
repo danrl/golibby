@@ -17,11 +17,6 @@ type Item struct {
 	Val interface{}
 }
 
-// New initiates a new AVL tree
-func New() *AVLTree {
-	return &AVLTree{}
-}
-
 // Upsert inserts or updates a key value pair
 func (a *AVLTree) Upsert(key string, value interface{}) {
 	a.lock.Lock()

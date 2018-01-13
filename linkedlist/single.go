@@ -10,8 +10,8 @@ type item struct {
 	val  interface{}
 }
 
-// Single represents a single linked list
-type Single struct {
+// LinkedList represents a single linked list
+type LinkedList struct {
 	head *item
 	lock sync.RWMutex
 }
@@ -21,13 +21,8 @@ var (
 	ErrorNotFound = fmt.Errorf("not found")
 )
 
-// NewSingle creates a new single linked list
-func NewSingle() *Single {
-	return &Single{}
-}
-
 // Append adds val to the end of the single linked list
-func (s *Single) Append(val interface{}) {
+func (s *LinkedList) Append(val interface{}) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	new := &item{
@@ -44,7 +39,7 @@ func (s *Single) Append(val interface{}) {
 }
 
 // Remove deletes the first occurrence of val from the single linked list
-func (s *Single) Remove(val interface{}) error {
+func (s *LinkedList) Remove(val interface{}) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	var prev *item
@@ -63,7 +58,7 @@ func (s *Single) Remove(val interface{}) error {
 }
 
 // Iter provides an iterator to walk through the single linked list
-func (s *Single) Iter() <-chan interface{} {
+func (s *LinkedList) Iter() <-chan interface{} {
 	ch := make(chan interface{})
 	s.lock.RLock()
 	go func() {
@@ -77,7 +72,7 @@ func (s *Single) Iter() <-chan interface{} {
 }
 
 // Len returns the number of items in the single linked list
-func (s *Single) Len() int {
+func (s *LinkedList) Len() int {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
 	var i int

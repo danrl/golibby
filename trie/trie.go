@@ -10,18 +10,14 @@ type Trie struct {
 	lock sync.RWMutex
 }
 
-// New creates a new, empty
-func New() *Trie {
-	return &Trie{
-		root: new(),
-	}
-}
-
 // Upsert assigns arbitrary data to a node in a trie identified by a path of
 // keys
 func (t *Trie) Upsert(path []string, value interface{}) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
+	if t.root == nil {
+		t.root = &node{}
+	}
 	t.root.upsert(path, value)
 }
 

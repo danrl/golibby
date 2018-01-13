@@ -18,12 +18,6 @@ var (
 	ErrorNoData = fmt.Errorf("no data")
 )
 
-func new() *node {
-	return &node{
-		keys: make(map[string]*node),
-	}
-}
-
 func (n *node) node(path []string, create bool) (*node, error) {
 	if len(path) == 0 {
 		return n, nil
@@ -33,8 +27,9 @@ func (n *node) node(path []string, create bool) (*node, error) {
 		if !create {
 			return nil, ErrorNotFound
 		}
-		nd = &node{
-			keys: make(map[string]*node),
+		nd = &node{}
+		if n.keys == nil {
+			n.keys = make(map[string]*node)
 		}
 		n.keys[path[0]] = nd
 	}
@@ -48,6 +43,9 @@ func (n *node) upsert(path []string, value interface{}) {
 }
 
 func (n *node) data(path []string) (interface{}, error) {
+	if n == nil {
+		return nil, ErrorNotFound
+	}
 	nd, err := n.node(path, false)
 	if err != nil {
 		return nil, err
@@ -59,6 +57,9 @@ func (n *node) data(path []string) (interface{}, error) {
 }
 
 func (n *node) delete(path []string) (int, error) {
+	if n == nil {
+		return 0, ErrorNotFound
+	}
 	// remove data and return if this node is the last node in the path
 	if len(path) == 0 {
 		n.value = nil
