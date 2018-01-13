@@ -26,11 +26,6 @@ type BSTree struct {
 	lock sync.RWMutex
 }
 
-// New returns an initialized binary search tree
-func New() *BSTree {
-	return &BSTree{}
-}
-
 func new(key string, val interface{}) *node {
 	return &node{
 		key: key,

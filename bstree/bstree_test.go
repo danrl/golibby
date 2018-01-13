@@ -6,14 +6,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNew(t *testing.T) {
-	bst := New()
-	assert.NotEqual(t, nil, bst)
-}
-
 func TestUpsert(t *testing.T) {
 	var err error
-	bst := New()
+	bst := BSTree{}
 
 	err = bst.Upsert("foo", "bar")
 	assert.Equal(t, nil, err)
@@ -49,7 +44,7 @@ func TestUpsert(t *testing.T) {
 
 func TestValue(t *testing.T) {
 	var err error
-	bst := New()
+	bst := BSTree{}
 	_ = bst.Upsert("foo", "bar")
 
 	// root
@@ -109,7 +104,7 @@ func TestDelete(t *testing.T) {
 	// leaf node
 	{
 		var err error
-		bst := New()
+		bst := BSTree{}
 		_ = bst.Upsert("foo", "bar")
 		_ = bst.Upsert("aaa", "bar-a")
 		_ = bst.Upsert("zzz", "bar-z")
@@ -129,7 +124,7 @@ func TestDelete(t *testing.T) {
 	// left child
 	{
 		var err error
-		bst := New()
+		bst := BSTree{}
 		_ = bst.Upsert("foo", "bar")
 		_ = bst.Upsert("aaa", "bar-a")
 
@@ -141,7 +136,7 @@ func TestDelete(t *testing.T) {
 	// right child
 	{
 		var err error
-		bst := New()
+		bst := BSTree{}
 		_ = bst.Upsert("foo", "bar")
 		_ = bst.Upsert("zzz", "bar-z")
 
@@ -153,7 +148,7 @@ func TestDelete(t *testing.T) {
 	// two children
 	{
 		var err error
-		bst := New()
+		bst := BSTree{}
 		_ = bst.Upsert("foo", "bar")
 		_ = bst.Upsert("aaa", "bar-a")
 		_ = bst.Upsert("zzz", "bar-z")
@@ -166,7 +161,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestMin(t *testing.T) {
-	bst := New()
+	bst := BSTree{}
 	_ = bst.Upsert("foo", "bar")
 	_ = bst.Upsert("bbb", "bar-b")
 	_ = bst.Upsert("aaa", "bar-a")
@@ -174,7 +169,7 @@ func TestMin(t *testing.T) {
 }
 
 func TestHeight(t *testing.T) {
-	bst := New()
+	bst := BSTree{}
 	assert.Equal(t, 0, bst.Height())
 
 	bst.Upsert("foo", "bar")
@@ -187,7 +182,7 @@ func TestHeight(t *testing.T) {
 }
 
 func TestIter(t *testing.T) {
-	bst := New()
+	bst := BSTree{}
 	bst.Upsert("foo", "bar")
 	bst.Upsert("aaa", "bar-a")
 	bst.Upsert("zzz", "bar-z")

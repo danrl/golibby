@@ -7,7 +7,7 @@ import (
 )
 
 func TestLen(t *testing.T) {
-	s := New()
+	s := Stack{}
 	assert.Equal(t, 0, s.Len())
 
 	s.Push(23)
@@ -28,7 +28,7 @@ func TestLen(t *testing.T) {
 }
 
 func TestPushPop(t *testing.T) {
-	s := New()
+	s := Stack{}
 	s.Push(1337)
 
 	x, err := s.Pop()
@@ -40,7 +40,7 @@ func TestPushPop(t *testing.T) {
 }
 
 func TestPeek(t *testing.T) {
-	s := New()
+	s := Stack{}
 
 	_, err := s.Peek()
 	assert.Equal(t, ErrorEmptyStack, err)

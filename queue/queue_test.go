@@ -7,7 +7,7 @@ import (
 )
 
 func TestLen(t *testing.T) {
-	q := New()
+	q := Queue{}
 	assert.Equal(t, 0, q.Len())
 
 	q.Add(1)
@@ -28,7 +28,7 @@ func TestLen(t *testing.T) {
 }
 
 func TestAddRemove(t *testing.T) {
-	q := New()
+	q := Queue{}
 	q.Add(1337)
 	item, err := q.Remove()
 	assert.Equal(t, nil, err)
@@ -39,7 +39,7 @@ func TestAddRemove(t *testing.T) {
 }
 
 func TestPeek(t *testing.T) {
-	q := New()
+	q := Queue{}
 
 	_, err := q.Peek()
 	assert.Equal(t, ErrorEmpty, err)

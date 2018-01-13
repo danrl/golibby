@@ -7,21 +7,21 @@ import (
 )
 
 func TestNodeNew(t *testing.T) {
-	nd := new()
+	nd := node{}
 	assert.NotEqual(t, nil, nd)
 	assert.Equal(t, 0, len(nd.keys))
 }
 
 func TestNodeNode(t *testing.T) {
 	{
-		nd := new()
+		nd := node{}
 
 		_, err := nd.node([]string{"foo"}, false)
 		assert.Equal(t, 0, len(nd.keys))
 		assert.Equal(t, ErrorNotFound, err)
 	}
 	{
-		nd := new()
+		nd := node{}
 
 		_, err := nd.node([]string{"foo"}, true)
 		assert.Equal(t, 1, len(nd.keys))
@@ -31,7 +31,7 @@ func TestNodeNode(t *testing.T) {
 
 func TestNodeUpsert(t *testing.T) {
 	{
-		nd := new()
+		nd := node{}
 
 		nd.upsert([]string{"foo"}, 23)
 		assert.NotEqual(t, (nil), nd.keys["foo"])
@@ -40,20 +40,20 @@ func TestNodeUpsert(t *testing.T) {
 
 func TestNodeData(t *testing.T) {
 	{
-		nd := new()
+		nd := node{}
 
 		_, err := nd.data([]string{"foo"})
 		assert.Equal(t, ErrorNotFound, err)
 	}
 	{
-		nd := new()
+		nd := node{}
 
 		nd.upsert([]string{"foo", "bar"}, 42)
 		_, err := nd.data([]string{"foo"})
 		assert.Equal(t, ErrorNoData, err)
 	}
 	{
-		nd := new()
+		nd := node{}
 
 		nd.upsert([]string{"foo"}, 23)
 		value, err := nd.data([]string{"foo"})
@@ -64,20 +64,20 @@ func TestNodeData(t *testing.T) {
 
 func TestNodeDelete(t *testing.T) {
 	{
-		nd := new()
+		nd := node{}
 
 		_, err := nd.delete([]string{"foo"})
 		assert.Equal(t, ErrorNotFound, err)
 	}
 	{
-		nd := new()
+		nd := node{}
 		nd.upsert([]string{"foo"}, 23)
 
 		_, err := nd.delete([]string{"foo"})
 		assert.Equal(t, nil, err)
 	}
 	{
-		nd := new()
+		nd := node{}
 		nd.upsert([]string{"foo"}, 23)
 
 		_, err := nd.delete([]string{"foo", "bar"})

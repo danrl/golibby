@@ -16,11 +16,6 @@ var (
 	ErrorEmpty = fmt.Errorf("empty queue")
 )
 
-// New creates a new queue
-func New() *Queue {
-	return &Queue{}
-}
-
 // Len returns the number of items in the queue
 func (q *Queue) Len() int {
 	q.lock.RLock()
