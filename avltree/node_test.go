@@ -3,7 +3,7 @@ package avltree
 import (
 	"testing"
 
-	"github.com/danrl/golibby/utils"
+	"github.com/danrl/golibby/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,7 +18,7 @@ func testhelperRecursiveHeightsUpdate(nd *node) int {
 	} else {
 		nd.rightHeight = 1 + testhelperRecursiveHeightsUpdate(nd.right)
 	}
-	return utils.Max(nd.leftHeight, nd.rightHeight)
+	return util.Max(nd.leftHeight, nd.rightHeight)
 }
 
 func TestNewOrphanNode(t *testing.T) {

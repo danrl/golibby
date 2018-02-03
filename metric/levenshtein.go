@@ -1,6 +1,6 @@
-package metrics
+package metric
 
-import "github.com/danrl/golibby/utils"
+import "github.com/danrl/golibby/util"
 
 // LevenshteinDistance returns the Levenshtein distance of two strings
 func LevenshteinDistance(a, b string) int {
@@ -24,7 +24,7 @@ func LevenshteinDistance(a, b string) int {
 			if ar[i] == br[j] {
 				subCost = v0[j]
 			}
-			v1[j+1] = utils.Min(delCost, insCost, subCost)
+			v1[j+1] = util.Min(delCost, insCost, subCost)
 		}
 		for i := range v0 {
 			v0[i] = v1[i]

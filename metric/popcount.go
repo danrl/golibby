@@ -1,4 +1,4 @@
-package metrics
+package metric
 
 // PopulationCount returns the bit sum of a byte
 func PopulationCount(x byte) int {

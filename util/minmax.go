@@ -1,4 +1,4 @@
-package utils
+package util
 
 // Min returns the smaller of two or more given integers
 func Min(a int, x ...int) int {

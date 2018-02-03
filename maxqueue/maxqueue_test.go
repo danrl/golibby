@@ -1,4 +1,4 @@
-package limitedqueue
+package maxqueue
 
 import (
 	"testing"

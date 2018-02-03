@@ -3,7 +3,7 @@ package avltree
 import (
 	"fmt"
 
-	"github.com/danrl/golibby/utils"
+	"github.com/danrl/golibby/util"
 )
 
 type node struct {
@@ -48,7 +48,7 @@ func (n *node) hasRightImbalance() bool {
 }
 
 func (n *node) height() int {
-	return utils.Max(n.leftHeight, n.rightHeight)
+	return util.Max(n.leftHeight, n.rightHeight)
 }
 
 func (n *node) updateHeights() {
