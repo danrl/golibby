@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/danrl/golibby/utils"
+	"github.com/danrl/golibby/util"
 )
 
 // Item holds the key and value of a node to be returned by an iterator
@@ -150,7 +150,7 @@ func (n *node) height() int {
 	if n == nil {
 		return 0
 	}
-	return 1 + utils.Max(n.left.height(), n.right.height())
+	return 1 + util.Max(n.left.height(), n.right.height())
 }
 
 // Height returns the height of a binary search tree

@@ -1,4 +1,4 @@
-package limitedqueue
+package maxqueue
 
 import (
 	"fmt"
@@ -7,41 +7,41 @@ import (
 	"github.com/danrl/golibby/queue"
 )
 
-// LimitedQueue represents a limited queue
-type LimitedQueue struct {
+// MaxQueue represents a maxqueue
+type MaxQueue struct {
 	queue  queue.Queue
 	maxlen int
 	lock   sync.RWMutex
 }
 
 var (
-	// ErrorEmpty is returned on illegal operations on an empty limited queue
+	// ErrorEmpty is returned on illegal operations on an empty maxqueue
 	ErrorEmpty = fmt.Errorf("empty queue")
-	// ErrorFull is returned on illegal operations on a full limited queue
+	// ErrorFull is returned on illegal operations on a full maxqueue
 	ErrorFull = fmt.Errorf("full queue")
 	// ErrorIllegalLength is returned on illegal maximum length
 	ErrorIllegalLength = fmt.Errorf("illegal legnth")
 )
 
-// New creates a new limited queue
-func New(maxlen int) (*LimitedQueue, error) {
+// New creates a new maxqueue
+func New(maxlen int) (*MaxQueue, error) {
 	if maxlen < 1 {
 		return nil, ErrorIllegalLength
 	}
-	return &LimitedQueue{
+	return &MaxQueue{
 		maxlen: maxlen,
 	}, nil
 }
 
-// Len returns the number of items in the limited queue
-func (q *LimitedQueue) Len() int {
+// Len returns the number of items in the maxqueue
+func (q *MaxQueue) Len() int {
 	q.lock.RLock()
 	defer q.lock.RUnlock()
 	return q.queue.Len()
 }
 
-// Add adds an item at the end of the limited queue
-func (q *LimitedQueue) Add(item interface{}) error {
+// Add adds an item at the end of the maxqueue
+func (q *MaxQueue) Add(item interface{}) error {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 	if q.queue.Len() >= q.maxlen {
@@ -51,8 +51,8 @@ func (q *LimitedQueue) Add(item interface{}) error {
 	return nil
 }
 
-// Peek returns the first item from the limited queue without removing it
-func (q *LimitedQueue) Peek() (interface{}, error) {
+// Peek returns the first item from the maxqueue without removing it
+func (q *MaxQueue) Peek() (interface{}, error) {
 	q.lock.RLock()
 	defer q.lock.RUnlock()
 	item, err := q.queue.Peek()
@@ -62,8 +62,8 @@ func (q *LimitedQueue) Peek() (interface{}, error) {
 	return item, nil
 }
 
-// Remove returns the first item from the limited queue
-func (q *LimitedQueue) Remove() (interface{}, error) {
+// Remove returns the first item from the maxqueue
+func (q *MaxQueue) Remove() (interface{}, error) {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 	item, err := q.queue.Remove()
