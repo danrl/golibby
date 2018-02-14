@@ -22,8 +22,8 @@ type node struct {
 
 // BSTree represents a binary search tree
 type BSTree struct {
-	root *node
 	lock sync.RWMutex
+	root *node
 }
 
 func new(key string, val interface{}) *node {

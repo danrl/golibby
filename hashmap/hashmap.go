@@ -9,8 +9,8 @@ import (
 
 // HashMap holds a concurrency-safe hashmap implementation
 type HashMap struct {
-	data [1 << 16][]item
 	lock sync.RWMutex
+	data [1 << 16][]item
 }
 
 type item struct {
