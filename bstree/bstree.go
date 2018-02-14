@@ -26,13 +26,6 @@ type BSTree struct {
 	root *node
 }
 
-func new(key string, val interface{}) *node {
-	return &node{
-		key: key,
-		val: val,
-	}
-}
-
 // ErrorNotFound is returned when a key is not in the binary search tree
 var ErrorNotFound = fmt.Errorf("not found")
 
@@ -58,14 +51,14 @@ func (b *BSTree) Value(key string) (interface{}, error) {
 func (n *node) upsert(key string, val interface{}) error {
 	if key < n.key {
 		if n.left == nil {
-			n.left = new(key, val)
+			n.left = &node{key: key, val: val}
 			return nil
 		}
 		return n.left.upsert(key, val)
 	}
 	if key > n.key {
 		if n.right == nil {
-			n.right = new(key, val)
+			n.right = &node{key: key, val: val}
 			return nil
 		}
 		return n.right.upsert(key, val)
@@ -80,7 +73,7 @@ func (b *BSTree) Upsert(key string, val interface{}) error {
 	defer b.lock.Unlock()
 	// if root node is empty, new node is root now
 	if b.root == nil {
-		b.root = new(key, val)
+		b.root = &node{key: key, val: val}
 		return nil
 	}
 	return b.root.upsert(key, val)
