@@ -7,8 +7,8 @@ import (
 
 // Queue represents a queue
 type Queue struct {
-	data []interface{}
 	lock sync.RWMutex
+	data []interface{}
 }
 
 var (

@@ -7,8 +7,8 @@ import (
 
 // Stack represents a stack
 type Stack struct {
-	data []interface{}
 	lock sync.RWMutex
+	data []interface{}
 }
 
 // ErrorEmptyStack is returned on illegal operations on an empty stack

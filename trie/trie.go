@@ -6,8 +6,8 @@ import (
 
 // Trie holds the trie's root node
 type Trie struct {
-	root *node
 	lock sync.RWMutex
+	root *node
 }
 
 // Upsert assigns arbitrary data to a node in a trie identified by a path of
