@@ -12,7 +12,7 @@ jobs:
         - golint   -set_exit_status $(go list ./... | grep -v /vendor/)
         - go vet   -v               $(go list ./... | grep -v /vendor/)
         - go build -v               $(go list ./... | grep -v /vendor/)
-        - go test  -v               $(go list ./... | grep -v /vendor/)
+        - go test  -v -race         $(go list ./... | grep -v /vendor/)
         # extensive testing and code coverage
         - |
             echo "" > coverage.txt
