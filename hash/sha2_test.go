@@ -6,6 +6,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var (
+	// Excerpt from `All Watched Over by Machines of Loving Grace` (1967)
+	// by Richard Brautigan
+	poem = []byte(`I like to think
+(it has to be!)
+of a cybernetic ecology
+where we are free of our labors
+and joined back to nature,
+returned to our mammal
+brothers and sisters,
+and all watched over
+by machines of loving grace.`)
+	poemDigest = [32]uint8{0x6c, 0x71, 0x46, 0x96, 0xd0, 0xdd, 0x37, 0x4b, 0x39, 0xe, 0xe, 0xe0, 0x61, 0xa1, 0xa, 0xe3, 0x5e, 0x9d, 0x2a, 0x2e, 0x26, 0xa7, 0x93, 0x71, 0xba, 0x15, 0xb2, 0xc, 0x90, 0x4e, 0xcd, 0x81}
+)
+
 func TestSHA256(t *testing.T) {
 	{
 		msg := ""
@@ -22,17 +37,12 @@ func TestSHA256(t *testing.T) {
 		assert.Equal(t, digest, SHA256([]byte(msg)))
 	}
 	{
-		digest := [32]uint8{0x6c, 0x71, 0x46, 0x96, 0xd0, 0xdd, 0x37, 0x4b, 0x39, 0xe, 0xe, 0xe0, 0x61, 0xa1, 0xa, 0xe3, 0x5e, 0x9d, 0x2a, 0x2e, 0x26, 0xa7, 0x93, 0x71, 0xba, 0x15, 0xb2, 0xc, 0x90, 0x4e, 0xcd, 0x81}
-		msg := `I like to think
-(it has to be!)
-of a cybernetic ecology
-where we are free of our labors
-and joined back to nature,
-returned to our mammal
-brothers and sisters,
-and all watched over
-by machines of loving grace.`
+		assert.Equal(t, poemDigest, SHA256(poem))
+	}
+}
 
-		assert.Equal(t, digest, SHA256([]byte(msg)))
+func BenchmarkGolibbySHA256(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		_ = SHA256(poem)
 	}
 }
