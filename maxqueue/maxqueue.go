@@ -9,9 +9,9 @@ import (
 
 // MaxQueue represents a maxqueue
 type MaxQueue struct {
+	lock   sync.RWMutex
 	queue  queue.Queue
 	maxlen int
-	lock   sync.RWMutex
 }
 
 var (

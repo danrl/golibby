@@ -12,8 +12,8 @@ type item struct {
 
 // LinkedList represents a single linked list
 type LinkedList struct {
-	head *item
 	lock sync.RWMutex
+	head *item
 }
 
 var (
