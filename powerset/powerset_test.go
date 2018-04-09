@@ -16,25 +16,25 @@ var (
 		{
 			name:     "one item set",
 			in:       []int{7},
-			expected: [][]int{[]int{}, []int{7}},
+			expected: [][]int{{}, {7}},
 		},
 		{
 			name: "two item set",
 			in:   []int{3, 5},
 			expected: [][]int{
-				[]int{},
-				[]int{3},
-				[]int{5}, []int{3, 5},
+				{},
+				{3},
+				{5}, {3, 5},
 			},
 		},
 		{
 			name: "three item set",
 			in:   []int{3, 5, 7},
 			expected: [][]int{
-				[]int{},
-				[]int{3},
-				[]int{5}, []int{3, 5},
-				[]int{7}, []int{3, 7}, []int{5, 7}, []int{3, 5, 7},
+				{},
+				{3},
+				{5}, {3, 5},
+				{7}, {3, 7}, {5, 7}, {3, 5, 7},
 			},
 		},
 	}
