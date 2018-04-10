@@ -1,6 +1,9 @@
 package queensboard
 
-import "testing"
+import (
+	"bytes"
+	"testing"
+)
 
 func TestNew(t *testing.T) {
 	b := New()
@@ -224,4 +227,94 @@ func TestAvailableFields(t *testing.T) {
 	if len(f) != 22 {
 		t.Errorf("expected length `%v` got length `%v`", 22, len(f))
 	}
+}
+
+func TestPrint(t *testing.T) {
+	t.Run("empty board", func(t *testing.T) {
+		expected := []byte("┏━┯━┯━┯━┯━┯━┯━┯━┓\n" +
+			"┃ │ │ │ │ │ │ │ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃ │ │ │ │ │ │ │ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃ │ │ │ │ │ │ │ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃ │ │ │ │ │ │ │ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃ │ │ │ │ │ │ │ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃ │ │ │ │ │ │ │ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃ │ │ │ │ │ │ │ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃ │ │ │ │ │ │ │ ┃\n" +
+			"┗━┷━┷━┷━┷━┷━┷━┷━┛\n")
+		b := New()
+		var buf bytes.Buffer
+		err := b.Print(&buf)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+		if bytes.Compare(buf.Bytes(), expected) != 0 {
+			t.Errorf("output does not match expected layout")
+		}
+	})
+	t.Run("one queen", func(t *testing.T) {
+		expected := []byte("┏━┯━┯━┯━┯━┯━┯━┯━┓\n" +
+			"┃♛│•│•│•│•│•│•│•┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃•│•│ │ │ │ │ │ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃•│ │•│ │ │ │ │ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃•│ │ │•│ │ │ │ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃•│ │ │ │•│ │ │ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃•│ │ │ │ │•│ │ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃•│ │ │ │ │ │•│ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃•│ │ │ │ │ │ │•┃\n" +
+			"┗━┷━┷━┷━┷━┷━┷━┷━┛\n")
+		b := New()
+		b.PlaceQueen(Coordinates{X: 0, Y: 0})
+		var buf bytes.Buffer
+		err := b.Print(&buf)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+		if bytes.Compare(buf.Bytes(), expected) != 0 {
+			t.Errorf("output does not match expected layout")
+		}
+	})
+	t.Run("two queen", func(t *testing.T) {
+		expected := []byte("┏━┯━┯━┯━┯━┯━┯━┯━┓\n" +
+			"┃♛│•│•│•│•│•│•│•┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃•│•│•│♛│•│•│•│•┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃•│ │•│•│•│ │ │ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃•│•│ │•│ │•│ │ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃•│ │ │•│•│ │•│ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃•│ │ │•│ │•│ │•┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃•│ │ │•│ │ │•│ ┃\n" +
+			"┠─┼─┼─┼─┼─┼─┼─┼─┨\n" +
+			"┃•│ │ │•│ │ │ │•┃\n" +
+			"┗━┷━┷━┷━┷━┷━┷━┷━┛\n")
+		b := New()
+		b.PlaceQueen(Coordinates{X: 0, Y: 0})
+		b.PlaceQueen(Coordinates{X: 3, Y: 1})
+		var buf bytes.Buffer
+		err := b.Print(&buf)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+		if bytes.Compare(buf.Bytes(), expected) != 0 {
+			t.Errorf("output does not match expected layout")
+		}
+	})
 }
