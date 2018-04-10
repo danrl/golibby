@@ -5,7 +5,9 @@
 package queensboard
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"sync"
 )
 
@@ -198,4 +200,47 @@ func (b *Board) AvailableFields() []Coordinates {
 		}
 	}
 	return cs
+}
+
+// Print writes a human readable representation of the current board state to
+// the given writer
+func (b *Board) Print(w io.Writer) error {
+	// board framing
+	var top, middle, bottom bytes.Buffer
+	top.WriteRune('┏')
+	middle.WriteRune('┠')
+	bottom.WriteRune('┗')
+	for j := 1; j < b.width; j++ {
+		top.Write([]byte("━┯"))
+		middle.Write([]byte("─┼"))
+		bottom.Write([]byte("━┷"))
+	}
+	top.Write([]byte("━┓\n"))
+	middle.Write([]byte("─┨\n"))
+	bottom.Write([]byte("━┛\n"))
+
+	// compile the field
+	out := bytes.NewBuffer(top.Bytes())
+	for i := 0; i < b.height; i++ {
+		out.WriteRune('┃')
+		for j := 0; j < b.width; j++ {
+			if b.fields[i][j].queen {
+				out.WriteRune('♛')
+			} else if b.fields[i][j].attacks > 0 {
+				out.WriteRune('•')
+			} else {
+				out.WriteRune(' ')
+			}
+			if j < (b.width - 1) {
+				out.WriteRune('│')
+			}
+		}
+		out.Write([]byte("┃\n"))
+		if i < (b.height - 1) {
+			out.Write(middle.Bytes())
+		}
+	}
+	out.Write(bottom.Bytes())
+	_, err := w.Write(out.Bytes())
+	return err
 }
