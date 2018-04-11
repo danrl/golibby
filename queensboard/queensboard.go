@@ -221,6 +221,7 @@ func (b *Board) Print(w io.Writer) error {
 
 	// compile the field
 	out := bytes.NewBuffer(top.Bytes())
+	b.lock.RLock()
 	for i := 0; i < b.height; i++ {
 		out.WriteRune('┃')
 		for j := 0; j < b.width; j++ {
@@ -240,6 +241,7 @@ func (b *Board) Print(w io.Writer) error {
 			out.Write(middle.Bytes())
 		}
 	}
+	b.lock.RUnlock()
 	out.Write(bottom.Bytes())
 	_, err := w.Write(out.Bytes())
 	return err
