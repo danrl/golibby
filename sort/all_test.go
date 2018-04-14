@@ -66,7 +66,7 @@ var tt = []struct {
 		expected: []int{1, 2, 3, 4, 97, 98, 99, 100},
 	},
 	{
-		name:     "x",
+		name:     "small middle element",
 		in:       []int{100, 1, 4},
 		expected: []int{1, 4, 100},
 	},
