@@ -1,14 +1,16 @@
 package util
 
-func UpperBound(value, bound int) int {
-	if value > bound {
+// LowerBound restricts value to given lower bound
+func LowerBound(value, bound int) int {
+	if value < bound {
 		return bound
 	}
 	return value
 }
 
-func LowerBound(value, bound int) int {
-	if value < bound {
+// UpperBound restricts value to given upper bound
+func UpperBound(value, bound int) int {
+	if value > bound {
 		return bound
 	}
 	return value
