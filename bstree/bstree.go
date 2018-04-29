@@ -48,35 +48,34 @@ func (b *BSTree) Value(key string) (interface{}, error) {
 	return b.root.value(key)
 }
 
-func (n *node) upsert(key string, val interface{}) error {
+func (n *node) upsert(key string, val interface{}) {
 	if key < n.key {
 		if n.left == nil {
 			n.left = &node{key: key, val: val}
-			return nil
+		} else {
+			n.left.upsert(key, val)
 		}
-		return n.left.upsert(key, val)
-	}
-	if key > n.key {
+	} else if key > n.key {
 		if n.right == nil {
 			n.right = &node{key: key, val: val}
-			return nil
+		} else {
+			n.right.upsert(key, val)
 		}
-		return n.right.upsert(key, val)
+	} else {
+		n.val = val
 	}
-	n.val = val
-	return nil
 }
 
 // Upsert updates or inserts data associated to a given key
-func (b *BSTree) Upsert(key string, val interface{}) error {
+func (b *BSTree) Upsert(key string, val interface{}) {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 	// if root node is empty, new node is root now
 	if b.root == nil {
 		b.root = &node{key: key, val: val}
-		return nil
+	} else {
+		b.root.upsert(key, val)
 	}
-	return b.root.upsert(key, val)
 }
 
 func (n *node) isLeaf() bool {

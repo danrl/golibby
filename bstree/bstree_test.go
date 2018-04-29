@@ -7,37 +7,30 @@ import (
 )
 
 func TestUpsert(t *testing.T) {
-	var err error
 	bst := BSTree{}
 
-	err = bst.Upsert("foo", "bar")
-	assert.Equal(t, nil, err)
+	bst.Upsert("foo", "bar")
 	assert.Equal(t, "foo", bst.root.key)
 	assert.Equal(t, "bar", bst.root.val)
 
 	// left
-	err = bst.Upsert("bbb", "bar-b")
-	assert.Equal(t, nil, err)
+	bst.Upsert("bbb", "bar-b")
 	assert.Equal(t, "bbb", bst.root.left.key)
 	assert.Equal(t, "bar-b", bst.root.left.val)
-	err = bst.Upsert("aaa", "bar-a")
-	assert.Equal(t, nil, err)
+	bst.Upsert("aaa", "bar-a")
 	assert.Equal(t, "aaa", bst.root.left.left.key)
 	assert.Equal(t, "bar-a", bst.root.left.left.val)
 
 	// right
-	err = bst.Upsert("yyy", "bar-y")
-	assert.Equal(t, nil, err)
+	bst.Upsert("yyy", "bar-y")
 	assert.Equal(t, "yyy", bst.root.right.key)
 	assert.Equal(t, "bar-y", bst.root.right.val)
-	err = bst.Upsert("zzz", "bar-z")
-	assert.Equal(t, nil, err)
+	bst.Upsert("zzz", "bar-z")
 	assert.Equal(t, "zzz", bst.root.right.right.key)
 	assert.Equal(t, "bar-z", bst.root.right.right.val)
 
 	// overwrite
-	err = bst.Upsert("foo", "1337")
-	assert.Equal(t, nil, err)
+	bst.Upsert("foo", "1337")
 	assert.Equal(t, "foo", bst.root.key)
 	assert.Equal(t, "1337", bst.root.val)
 }
@@ -45,7 +38,7 @@ func TestUpsert(t *testing.T) {
 func TestValue(t *testing.T) {
 	var err error
 	bst := BSTree{}
-	_ = bst.Upsert("foo", "bar")
+	bst.Upsert("foo", "bar")
 
 	// root
 	val, err := bst.Value("foo")
@@ -55,7 +48,7 @@ func TestValue(t *testing.T) {
 	// left
 	_, err = bst.Value("aaa")
 	assert.Equal(t, ErrorNotFound, err)
-	_ = bst.Upsert("aaa", "bar-a")
+	bst.Upsert("aaa", "bar-a")
 	val, err = bst.Value("aaa")
 	assert.Equal(t, "bar-a", val)
 	assert.Equal(t, nil, err)
@@ -63,7 +56,7 @@ func TestValue(t *testing.T) {
 	// right
 	_, err = bst.Value("zzz")
 	assert.Equal(t, ErrorNotFound, err)
-	_ = bst.Upsert("zzz", "bar-z")
+	bst.Upsert("zzz", "bar-z")
 	val, err = bst.Value("zzz")
 	assert.Equal(t, "bar-z", val)
 	assert.Equal(t, nil, err)
@@ -105,9 +98,9 @@ func TestDelete(t *testing.T) {
 	{
 		var err error
 		bst := BSTree{}
-		_ = bst.Upsert("foo", "bar")
-		_ = bst.Upsert("aaa", "bar-a")
-		_ = bst.Upsert("zzz", "bar-z")
+		bst.Upsert("foo", "bar")
+		bst.Upsert("aaa", "bar-a")
+		bst.Upsert("zzz", "bar-z")
 
 		// left
 		err = bst.Delete("aaa")
@@ -125,8 +118,8 @@ func TestDelete(t *testing.T) {
 	{
 		var err error
 		bst := BSTree{}
-		_ = bst.Upsert("foo", "bar")
-		_ = bst.Upsert("aaa", "bar-a")
+		bst.Upsert("foo", "bar")
+		bst.Upsert("aaa", "bar-a")
 
 		err = bst.Delete("foo")
 		assert.Equal(t, nil, err)
@@ -137,8 +130,8 @@ func TestDelete(t *testing.T) {
 	{
 		var err error
 		bst := BSTree{}
-		_ = bst.Upsert("foo", "bar")
-		_ = bst.Upsert("zzz", "bar-z")
+		bst.Upsert("foo", "bar")
+		bst.Upsert("zzz", "bar-z")
 
 		err = bst.Delete("foo")
 		assert.Equal(t, nil, err)
@@ -149,9 +142,9 @@ func TestDelete(t *testing.T) {
 	{
 		var err error
 		bst := BSTree{}
-		_ = bst.Upsert("foo", "bar")
-		_ = bst.Upsert("aaa", "bar-a")
-		_ = bst.Upsert("zzz", "bar-z")
+		bst.Upsert("foo", "bar")
+		bst.Upsert("aaa", "bar-a")
+		bst.Upsert("zzz", "bar-z")
 
 		err = bst.Delete("foo")
 		assert.Equal(t, nil, err)
@@ -162,9 +155,9 @@ func TestDelete(t *testing.T) {
 
 func TestMin(t *testing.T) {
 	bst := BSTree{}
-	_ = bst.Upsert("foo", "bar")
-	_ = bst.Upsert("bbb", "bar-b")
-	_ = bst.Upsert("aaa", "bar-a")
+	bst.Upsert("foo", "bar")
+	bst.Upsert("bbb", "bar-b")
+	bst.Upsert("aaa", "bar-a")
 	assert.Equal(t, "bar-a", bst.root.min().val)
 }
 
