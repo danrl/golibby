@@ -1,6 +1,6 @@
 package sort
 
-// QuickLomuto implements a quick sort algorithm using the Lomuto partitioningg
+// QuickLomuto implements a quick sort algorithm using the Lomuto partitioning
 // scheme
 func QuickLomuto(list []int) {
 	if len(list) > 1 {
