@@ -6,9 +6,8 @@ import "sync"
 // MovAvg represents the moving average data type
 type MovAvg struct {
 	lock   sync.Mutex
-	length uint
 	ring   []float64
-	index  uint
+	index  int
 	cached bool
 	sum    float64
 }
@@ -16,7 +15,6 @@ type MovAvg struct {
 // New creates a new moving average type of given length with caching disabled
 func New(length uint) *MovAvg {
 	return &MovAvg{
-		length: length,
 		ring:   make([]float64, length),
 		index:  0,
 		cached: false,
@@ -28,7 +26,6 @@ func New(length uint) *MovAvg {
 // data series
 func NewCached(length uint) *MovAvg {
 	return &MovAvg{
-		length: length,
 		ring:   make([]float64, length),
 		index:  0,
 		cached: true,
@@ -43,7 +40,7 @@ func (ma *MovAvg) Add(n float64) float64 {
 
 	ma.sum = ma.sum - ma.ring[ma.index] + n
 	ma.ring[ma.index] = n
-	ma.index = (ma.index + 1) % ma.length
+	ma.index = (ma.index + 1) % len(ma.ring)
 
 	if !ma.cached {
 		ma.sum = 0.0
@@ -51,5 +48,5 @@ func (ma *MovAvg) Add(n float64) float64 {
 			ma.sum += ma.ring[i]
 		}
 	}
-	return ma.sum / float64(ma.length)
+	return ma.sum / float64(len(ma.ring))
 }
