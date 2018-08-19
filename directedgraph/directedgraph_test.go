@@ -1,6 +1,8 @@
 package directedgraph
 
-import "testing"
+import (
+	"testing"
+)
 
 var (
 	nodes = []struct {
@@ -244,6 +246,24 @@ func TestGraphIsCyclic(t *testing.T) {
 			t.Errorf("expected `false` got `%v`", got)
 		}
 	})
+	t.Run("larger acyclic graph", func(t *testing.T) {
+		g := New()
+		g.NewNode("a", nil)
+		g.NewNode("b", nil)
+		g.NewNode("c", nil)
+		g.NewNode("d", nil)
+		g.NewNode("e", nil)
+		g.NewNode("f", nil)
+		g.NewEdge("a", "b")
+		g.NewEdge("b", "c")
+		g.NewEdge("b", "f")
+		g.NewEdge("c", "d")
+		g.NewEdge("d", "e")
+		g.NewEdge("e", "f")
+		if got := g.IsCyclic(); got {
+			t.Errorf("expected `false` got `%v`", got)
+		}
+	})
 	t.Run("cyclic graph (back edge)", func(t *testing.T) {
 		g := New()
 		for _, nd := range nodes {
@@ -272,6 +292,42 @@ func TestGraphIsCyclic(t *testing.T) {
 	})
 }
 
+func TestTopSort(t *testing.T) {
+	t.Run("acyclic graph", func(t *testing.T) {
+		g := New()
+		g.NewNode("a", nil)
+		g.NewNode("b", nil)
+		g.NewNode("c", nil)
+		g.NewEdge("b", "a")
+		g.NewEdge("c", "b")
+		got := g.TopSort()
+		expected := []string{"c", "b", "a"}
+		if !equal(expected, got) {
+			t.Errorf("expected `%v` got `%v`", expected, got)
+		}
+	})
+	t.Run("larger acyclic graph", func(t *testing.T) {
+		g := New()
+		g.NewNode("a", nil)
+		g.NewNode("b", nil)
+		g.NewNode("c", nil)
+		g.NewNode("d", nil)
+		g.NewNode("e", nil)
+		g.NewNode("f", nil)
+		g.NewEdge("a", "b")
+		g.NewEdge("b", "c")
+		g.NewEdge("b", "f")
+		g.NewEdge("c", "d")
+		g.NewEdge("d", "e")
+		g.NewEdge("e", "f")
+		got := g.TopSort()
+		expected := []string{"a", "b", "c", "d", "e", "f"}
+		if !equal(expected, got) {
+			t.Errorf("expected `%v` got `%v`", expected, got)
+		}
+	})
+}
+
 func TestGraphString(t *testing.T) {
 	t.Run("empty graph", func(t *testing.T) {
 		g := New()
@@ -294,4 +350,17 @@ func TestGraphString(t *testing.T) {
 			t.Errorf("expected string length `%v`, got `%v`", 136, len(got))
 		}
 	})
+}
+
+// test helper equal()
+func equal(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }
