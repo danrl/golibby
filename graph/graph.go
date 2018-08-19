@@ -1,5 +1,5 @@
-// Package graph implements an unidirected graph with nodes, edges, and
-// supporting methods.
+// Package graph implements an undirected graph with nodes (vertices),
+// edges, and supporting methods.
 package graph
 
 import (
