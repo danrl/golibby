@@ -231,6 +231,47 @@ func TestGraphNodes(t *testing.T) {
 	})
 }
 
+func TestGraphIsCyclic(t *testing.T) {
+	t.Run("acyclic graph", func(t *testing.T) {
+		g := New()
+		for _, nd := range nodes {
+			g.NewNode(nd.key, nd.value)
+		}
+		for _, e := range edges {
+			g.NewEdge(e.from, e.to)
+		}
+		if got := g.IsCyclic(); got {
+			t.Errorf("expected `false` got `%v`", got)
+		}
+	})
+	t.Run("cyclic graph (back edge)", func(t *testing.T) {
+		g := New()
+		for _, nd := range nodes {
+			g.NewNode(nd.key, nd.value)
+		}
+		for _, e := range edges {
+			g.NewEdge(e.from, e.to)
+		}
+		g.NewEdge("scary", "foo")
+		if got := g.IsCyclic(); !got {
+			t.Errorf("expected `true` got `%v`", got)
+		}
+	})
+	t.Run("cyclic graph (self-referencing node)", func(t *testing.T) {
+		g := New()
+		for _, nd := range nodes {
+			g.NewNode(nd.key, nd.value)
+		}
+		for _, e := range edges {
+			g.NewEdge(e.from, e.to)
+		}
+		g.NewEdge("eleven", "eleven")
+		if got := g.IsCyclic(); !got {
+			t.Errorf("expected `true` got `%v`", got)
+		}
+	})
+}
+
 func TestGraphString(t *testing.T) {
 	t.Run("empty graph", func(t *testing.T) {
 		g := New()
