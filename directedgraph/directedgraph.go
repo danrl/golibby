@@ -13,6 +13,9 @@ var (
 	ErrorNodeNotFound = fmt.Errorf("node not found")
 	// ErrorNodeAlreadyExists is returned when trying to create duplicate nodes
 	ErrorNodeAlreadyExists = fmt.Errorf("node already exists")
+	// ErrorGraphIsCyclic is returned when trying to perform an operation on a
+	// cyclic graph that requires the graph to be acyclic
+	ErrorGraphIsCyclic = fmt.Errorf("graph is cyclic")
 )
 
 // DirectedGraph holds a directed graph data structure
@@ -120,17 +123,19 @@ func (g *DirectedGraph) Nodes() []string {
 // expects a `seen` map that it updates and a `rs` (recursive stack) map that it
 // uses to find back edges.
 func (g *DirectedGraph) isCyclicDFS(seen, rs map[string]bool, key string) bool {
-	if _, ok := g.nodes[key]; ok {
-		seen[key] = true
-		if rs[key] {
+	seen[key] = true
+	if rs[key] {
+		return true
+	}
+	rs[key] = true
+	for to, active := range g.edges[key] {
+		if active && g.isCyclicDFS(seen, rs, to) {
 			return true
 		}
-		rs[key] = true
-		for to, active := range g.edges[key] {
-			if active && g.isCyclicDFS(seen, rs, to) {
-				return true
-			}
-		}
+		// deactivates the item in the map, which we mis-use as
+		// stack here to improve lookup times. we don't care about the order
+		// when looking for cycles
+		rs[to] = false
 	}
 	return false
 }
@@ -142,16 +147,52 @@ func (g *DirectedGraph) IsCyclic() bool {
 	defer g.lock.RUnlock()
 
 	seen := make(map[string]bool)
-	for node := range g.nodes {
-		if seen[node] {
+	for key := range g.nodes {
+		if seen[key] {
 			continue
 		}
 		rs := make(map[string]bool) // new recursion stack for each partition
-		if g.isCyclicDFS(seen, rs, node) {
+		if g.isCyclicDFS(seen, rs, key) {
 			return true
 		}
 	}
+
 	return false
+}
+
+// topSort sorts a graph recursively in topological order (non-deterministic)
+func (g *DirectedGraph) topSort(seen map[string]bool, order []string, i int, key string) int {
+	seen[key] = true
+
+	for to := range g.edges[key] {
+		if seen[to] {
+			continue
+		}
+		i = g.topSort(seen, order, i, to)
+	}
+	order[i] = key
+	return i - 1
+}
+
+// TopSort returns topological sorted slice of all node keys of the graph. This
+// functions returns a list of all nodes in undefined order if the graph happens
+// to be cyclic. Test with IsCyclic() before using TopSort() if you want to know
+// if there is a valid topological order at all.
+func (g *DirectedGraph) TopSort() []string {
+	g.lock.RLock()
+	defer g.lock.RUnlock()
+
+	order := make([]string, len(g.nodes))
+	i := len(order) - 1
+
+	seen := make(map[string]bool)
+	for key := range g.nodes {
+		if seen[key] {
+			continue
+		}
+		i = g.topSort(seen, order, i, key)
+	}
+	return order
 }
 
 // String returns a human readable multi-line string describing the graph
