@@ -15,7 +15,7 @@ var (
 	ErrorNodeAlreadyExists = fmt.Errorf("node already exists")
 )
 
-// DirectedGraph holds a graph data structure
+// DirectedGraph holds a directed graph data structure
 type DirectedGraph struct {
 	lock  sync.RWMutex
 	nodes map[string]interface{}
@@ -114,6 +114,44 @@ func (g *DirectedGraph) Nodes() []string {
 		i++
 	}
 	return nodes
+}
+
+// isCyclicDFS recursively tests nodes for back edges in a depth first way. It
+// expects a `seen` map that it updates and a `rs` (recursive stack) map that it
+// uses to find back edges.
+func (g *DirectedGraph) isCyclicDFS(seen, rs map[string]bool, key string) bool {
+	if _, ok := g.nodes[key]; ok {
+		seen[key] = true
+		if rs[key] {
+			return true
+		}
+		rs[key] = true
+		for to, active := range g.edges[key] {
+			if active && g.isCyclicDFS(seen, rs, to) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// IsCyclic tests a directed graph for cycles and returns true if a cycle has
+// been detected
+func (g *DirectedGraph) IsCyclic() bool {
+	g.lock.RLock()
+	defer g.lock.RUnlock()
+
+	seen := make(map[string]bool)
+	for node := range g.nodes {
+		if seen[node] {
+			continue
+		}
+		rs := make(map[string]bool) // new recursion stack for each partition
+		if g.isCyclicDFS(seen, rs, node) {
+			return true
+		}
+	}
+	return false
 }
 
 // String returns a human readable multi-line string describing the graph
