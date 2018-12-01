@@ -249,8 +249,8 @@ func TestGraphString(t *testing.T) {
 			g.NewEdge(e.from, e.to)
 		}
 		got := g.String()
-		if len(got) != 173 {
-			t.Errorf("expected string length `%v`, got `%v`", 173, len(got))
+		if len(got) != 171 {
+			t.Errorf("expected string length `%v`, got `%v`", 171, len(got))
 		}
 	})
 }
