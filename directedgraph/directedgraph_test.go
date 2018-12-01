@@ -19,7 +19,7 @@ var (
 		},
 		{
 			key:   "friends",
-			value: '🤩',
+			value: "🤩",
 		},
 		{
 			key:   "scary",
