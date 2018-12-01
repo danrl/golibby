@@ -1,0 +1,30 @@
+---
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.11
+    steps:
+      - checkout
+
+      # lint
+      - run: go get github.com/golang/lint/golint
+      - run: golint -set_exit_status $(go list ./...)
+
+      # build
+      - run: go mod vendor
+      - run: go vet   -v               $(go list ./... | grep -v /vendor/)
+      - run: go build -v               $(go list ./... | grep -v /vendor/)
+      - run: go test  -v -race         $(go list ./... | grep -v /vendor/)
+
+      # extensive testing and code coverage
+      - run: |
+          echo "" > coverage.txt
+          for FNAME in $(go list ./... | grep -v vendor); do
+            go test -race -coverprofile=profile.out -covermode=atomic ${FNAME}
+            if [ -f profile.out ]; then
+              cat profile.out >> coverage.txt
+              rm profile.out
+            fi
+          done
+      - run: bash <(curl -s https://codecov.io/bash)
