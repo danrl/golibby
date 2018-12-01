@@ -7,16 +7,19 @@ jobs:
     working_directory: /src
     steps:
       - checkout
+
       # lint
-      - go get github.com/golang/lint/golint
-      - golint -set_exit_status $(go list ./...)
+      - run: go get github.com/golang/lint/golint
+      - run: golint -set_exit_status $(go list ./...)
+
       # build
-      - go mod vendor
-      - go vet   -v               $(go list ./... | grep -v /vendor/)
-      - go build -v               $(go list ./... | grep -v /vendor/)
-      - go test  -v -race         $(go list ./... | grep -v /vendor/)
+      - run: go mod vendor
+      - run: go vet   -v               $(go list ./... | grep -v /vendor/)
+      - run: go build -v               $(go list ./... | grep -v /vendor/)
+      - run: go test  -v -race         $(go list ./... | grep -v /vendor/)
+
       # extensive testing and code coverage
-      - |
+      - run: |
           echo "" > coverage.txt
           for FNAME in $(go list ./... | grep -v vendor); do
             go test -race -coverprofile=profile.out -covermode=atomic ${FNAME}
@@ -25,4 +28,4 @@ jobs:
               rm profile.out
             fi
           done
-      - bash <(curl -s https://codecov.io/bash)
+      - run: bash <(curl -s https://codecov.io/bash)
