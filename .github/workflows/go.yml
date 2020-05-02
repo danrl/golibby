@@ -23,7 +23,7 @@ jobs:
       run: go mod vendor
     - name: Lint
       run: |
-        go get github.com/golang/lint/golint
+        go get golang.org/x/lint
         golint -set_exit_status $(go list ./...)
     - name: Vet
       run: go vet -v $(go list ./... | grep -v /vendor/)
