@@ -21,10 +21,6 @@ jobs:
 
     - name: Dependencies
       run: go mod vendor
-    - name: Lint
-      run: |
-        go get golang.org/x/lint
-        golint -set_exit_status $(go list ./...)
     - name: Vet
       run: go vet -v $(go list ./... | grep -v /vendor/)
     - name: Build
