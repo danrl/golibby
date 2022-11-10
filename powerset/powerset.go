@@ -2,17 +2,10 @@ package powerset
 
 // Iterative creates the powerset of the input set
 func Iterative(in []int) [][]int {
-	ps := [][]int{}
-	ps = append(ps, []int{})
+	ps := make([][]int, 1)
 	for _, item := range in {
-		ss := make([][]int, len(ps), len(ps))
-		copy(ss, ps)
-		for i := range ss {
-			ss[i] = append(ss[i], item)
-		}
-		// merge
-		for _, s := range ss {
-			ps = append(ps, s)
+		for i := range ps {
+			ps = append(ps, append(ps[i], item))
 		}
 	}
 	return ps
